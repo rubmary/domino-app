@@ -14,3 +14,7 @@ export const faces:{[i:string]:Array<number>} = {
     '6H': [0, 1, 2, 6, 7, 8],
     '6V': [0, 2, 3, 5, 6, 8],
 }
+
+export const checkDouble = (points: Array<number>) => {
+    return points.length === 2 && points[0] === points[1];
+}

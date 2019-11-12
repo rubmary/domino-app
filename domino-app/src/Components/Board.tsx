@@ -6,9 +6,10 @@ import { number } from 'prop-types';
 import Piece from './Piece';
 import Hand from './Hand';
 
+import {checkDouble} from '../utils';
 type State = {
 	pieces: Array<{id: number, double: boolean}>,
-	playerOne: Array<{id: number}>,
+	playerOne: Array<{id: number, points: Array<number>}>,
 	selected: number,
 	center: number,
 	left: {
@@ -27,16 +28,31 @@ type State = {
 class Board extends React.Component<{},State>{
 
 	positions:Array<{x:number,y:number}> = [];
+	set:Array<Array<number> > = [];
 	constructor(){
 		super({});
+		for(let i = 0; i <= 6; i++){
+			for(let j = i; j <= 6; j++){
+				this.set.push([i, j]);
+			}
+		}
+
+		for(let i = 0; i < this.set.length; i++){
+			let j = Math.floor(Math.random()*(this.set.length - i));
+			let t = this.set[i];
+			this.set[i] = this.set[i + j];
+			this.set[i + j] = t;
+		}
+
 		this.state = {
 			pieces: [],
-			playerOne: new Array(5).fill(null).map((_, i:number) => { return {id: i}}),
+			playerOne: new Array(7).fill(null).map((_, i:number) => { return {id: i, points: this.set[i]}}),
 			selected: -1,
 			center: -1,
 			left: {x: -1, y: -1, value: -1},
 			right: {x: -1, y: -1, value: -1},
 		}
+
 	}
 
 	cx = window.innerWidth / 2;
@@ -149,13 +165,15 @@ class Board extends React.Component<{},State>{
 		let placed = false;
 		const attrs = e.currentTarget.getAttrs();
 		const nx = attrs.x, ny =attrs.y;
+
+		const double = checkDouble(this.set[selected])
 		console.log('WHAT', nx, ny);
 		if(pieces.length === 0){
 			dx = nx - this.cx;
 			dy = ny - this.cy;
 			this.setState({center: selected})
 			if(dx*dx + dy*dy <= 10000){
-				this.pushPiece(true, false, selected);
+				this.pushPiece(true, double, selected);
 				placed = true;
 			}
 		}else{
@@ -167,10 +185,10 @@ class Board extends React.Component<{},State>{
 			dy1 = ny - this.state.left.y; dy2 = ny - this.state.right.y;
 			console.log(dx1*dx1 + dy1*dy1, dx2*dx2 + dy2*dy2);
 			if(dx1*dx1 + dy1*dy1 < dx2*dx2 + dy2*dy2 && dx1*dx1 + dy1*dy1 <= 10000){
-				this.pushPiece(false, false, selected);
+				this.pushPiece(false, double, selected);
 				placed = true;
 			}else if(dy2*dy2 + dx2*dx2 <= 10000){
-				this.pushPiece(true, false, selected);
+				this.pushPiece(true, double, selected);
 				placed = true;
 			}
 		}
@@ -219,12 +237,14 @@ class Board extends React.Component<{},State>{
 		const { pieces } = this.state;
 		const draw = pieces.map((piece: {id:number, double:boolean}, i:number) => {
 			return (
-				<Rect
+				<Piece
 					x = {this.positions[i].x}
 					y = {this.positions[i].y}
-					width={piece.double ? 50 : 100}
-					height={piece.double ? 100 : 50}
-					fill='blue'
+					points = {this.set[piece.id]}
+					vertical = {this.set[piece.id][0] === this.set[piece.id][1]}
+					player={false}
+					drag={()=>{}}
+					drop={()=>{}}
 				/>
 			)
 		});
@@ -234,15 +254,8 @@ class Board extends React.Component<{},State>{
 					<Layer>
 						{draw}
 						<Hand pieces={this.state.playerOne} drag={this.dragStart} drop={this.dragEnd}/>
-						<Circle fill='black' radius={5} x={this.cx} y={this.cy} />
 					</Layer>
 				</Stage>
-				{/*
-					<button onClick={() => this.pushPiece(false, false)}>Izquierda</button>
-					<button onClick={() => this.pushPiece(false, true)}>Izquierda doble</button>
-					<button onClick={() => this.pushPiece(true, false)}>Derecha</button>
-					<button onClick={() => this.pushPiece(true, true)}>Derecha doble</button>
-				*/}
 			</>
 		)
 	}
