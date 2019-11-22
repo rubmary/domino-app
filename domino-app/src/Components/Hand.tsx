@@ -2,10 +2,12 @@ import React from 'react';
 import {Rect} from 'react-konva';
 import Piece from './Piece';
 import { KonvaEventObject } from 'konva/types/Node';
+
 type Props = {
+    player: number,
     pieces: Array<{id: number, points: Array<number>}>,
     drag: (id: number) => void,
-    drop: ((e: KonvaEventObject<DragEvent>, x:number, y:number) => void) | (() => void),
+    drop: ((e: KonvaEventObject<DragEvent>, x:number, y:number, player:number) => void) | (() => void),
 }
 
 class Hand extends React.Component<Props>{
@@ -25,9 +27,9 @@ class Hand extends React.Component<Props>{
         const draw = pieces.map((piece:{id:number, points: Array<number>}, i:number) => {
             return (
                 <Piece 
-                    x = {cx + (i - m) * 50 - 25}
-                    y = {window.innerHeight - 100}
-                    player
+                    x = {cx + (i - m) * 55 - 25}
+                    y = {this.props.player === 1 ? 10 : window.innerHeight - 110}
+                    player={this.props.player}
                     vertical
                     drag={() => this.props.drag(piece.id)}
                     drop={this.props.drop}

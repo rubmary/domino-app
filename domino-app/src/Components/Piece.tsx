@@ -1,15 +1,15 @@
 import React from 'react';
-import { Rect, Circle, Group } from 'react-konva';
+import { Rect, Circle, Group, Line } from 'react-konva';
 import { KonvaEventObject } from 'konva/types/Node';
 import {faces} from '../utils';
 type Props = {
     x: number,
     y: number,
     points?: Array<number>,
-    player: boolean,
+    player: number,
     vertical: boolean,
     drag: () => void,
-    drop: ((e:KonvaEventObject<DragEvent>, x:number, y:number) => void) | (() => void),
+    drop: ((e:KonvaEventObject<DragEvent>, x:number, y:number, player:number) => void) | (() => void),
 }
 
 type FaceProps = {
@@ -38,15 +38,18 @@ class Piece extends React.Component<Props>{
         <Group 
             x={this.props.x}
             y={this.props.y}
-            draggable={this.props.player}
+            draggable={this.props.player === 1 || this.props.player === 2}
             onDragStart={this.props.drag} 
-            onDragEnd={(e:KonvaEventObject<DragEvent>) => this.props.drop(e, this.props.x, this.props.y)}>
+            onDragEnd={(e:KonvaEventObject<DragEvent>) => this.props.drop(e, this.props.x, this.props.y, this.props.player)}>
             <Rect
                 x = {0}
                 y = {0}
-                fill='blue'
+                fill='#ffffe3'
                 width={this.props.vertical?50:100}
                 height={this.props.vertical?100:50}
+                stroke='black'
+                strokeWidth={1.5}
+                cornerRadius={4}
             >
             </Rect>
             <Face 
@@ -60,6 +63,17 @@ class Piece extends React.Component<Props>{
                 ver={this.props.vertical} 
                 cx={cx + (this.props.vertical ? 0 : 25)}
                 cy={cy + (this.props.vertical ? 25 : 0)}
+            />
+            <Line
+                points={this.props.vertical ? [5, 50, 45, 50] : [50, 5, 50, 45]}
+                stroke='black'
+                tension={2}
+            />
+            <Circle
+                fill='#C97E28'
+                radius={4}
+                x={this.props.vertical ? 25 : 50}
+                y={this.props.vertical ? 50 : 25}
             />
         </Group>);    
     }
