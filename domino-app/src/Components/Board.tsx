@@ -103,7 +103,7 @@ class Board extends React.Component<{},State>{
 			const {id, vertical} = pieces[i];
 			let double = checkDouble(this.set[id]);
 			let far = (double ? (px + dir * 125) : (px + dir * 50));
-			if (far <= 150 || far >= window.innerWidth - 100) {
+			if (far <= 175 || far >= window.innerWidth - 100) {
 				// Vertical 
 				px -= dir * (double ? 50 : 75);
 				py += 75;
@@ -175,7 +175,7 @@ class Board extends React.Component<{},State>{
 			const {id, vertical} = pieces[i];
 			let double = checkDouble(this.set[id]);
 			let far = (double ? (px + dir * 125) : (px + dir * 50));
-			if (far <= 150 || far >= window.innerWidth - 100) {
+			if (far <= 175 || far >= window.innerWidth - 100) {
 				// Vertical 
 				px -= dir * (double ? 50 : 75);
 				py -= 75;
