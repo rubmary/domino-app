@@ -14,6 +14,7 @@ type State = {
 	pieces: Array<{id: number, vertical: boolean}>,
 	playerOne: PieceValue,
 	playerTwo: PieceValue,
+	deck: PieceValue,
 	selected: number,
 	center: number,
 	left: {
@@ -51,8 +52,9 @@ class Board extends React.Component<{},State>{
 
 		this.state = {
 			pieces: [],
-			playerOne: new Array(14).fill(null).map((_, i:number) => { return {id: i, points: this.set[i]}}),
-			playerTwo: new Array(14).fill(null).map((_, i:number) => { return {id: i+14, points: this.set[i+14]}}),
+			playerOne: new Array(12).fill(null).map((_, i:number) => { return {id: i, points: this.set[i]}}),
+			playerTwo: new Array(12).fill(null).map((_, i:number) => { return {id: i+12, points: this.set[i+12]}}),
+			deck: new Array(4).fill(null).map((_, i:number) => { return {id : i + 24, points: this.set[i+24]}}),
 			selected: -1,
 			center: -1,
 			left: {x: -1, y: -1, value: -1},
@@ -62,7 +64,7 @@ class Board extends React.Component<{},State>{
 	}
 
 	cx = window.innerWidth / 2;
-	cy = (window.innerHeight - 100) / 2;
+	cy = window.innerHeight/ 2;
 
 	swapPiece(id: number, prev: number, dir: number){
 		if(prev !== -1){
@@ -100,7 +102,7 @@ class Board extends React.Component<{},State>{
 			const {id, vertical} = pieces[i];
 			let double = checkDouble(this.set[id]);
 			let far = (double ? (px + dir * 125) : (px + dir * 50));
-			if (far <= 100 || far >= window.innerWidth - 100) {
+			if (far <= 150 || far >= window.innerWidth - 100) {
 				// Vertical 
 				px -= dir * (double ? 50 : 75);
 				py += 75;
@@ -172,7 +174,7 @@ class Board extends React.Component<{},State>{
 			const {id, vertical} = pieces[i];
 			let double = checkDouble(this.set[id]);
 			let far = (double ? (px + dir * 125) : (px + dir * 50));
-			if (far <= 100 || far >= window.innerWidth - 100) {
+			if (far <= 150 || far >= window.innerWidth - 100) {
 				// Vertical 
 				px -= dir * (double ? 50 : 75);
 				py -= 75;
@@ -214,7 +216,7 @@ class Board extends React.Component<{},State>{
 					this.swapPiece(pieces[i].id, prev, -dir);
 					this.positions[i] = {x: px-50, y: py-25};
 					this.orientation[i] = false;
-					prev = this.set[pieces[i].id][(dir === -1 ? 0 : 1)];
+					prev = this.set[pieces[i].id][(dir === -1 ? 1 : 0)];
 
 				}
 				dir *= -1;
@@ -364,6 +366,7 @@ class Board extends React.Component<{},State>{
 						{draw}
 						<Hand player={1} pieces={this.state.playerOne} drag={this.dragStart} drop={this.dragEnd}/>
 						<Hand player={2} pieces={this.state.playerTwo} drag={this.dragStart} drop={this.dragEnd}/>
+						<Hand player={3} pieces={this.state.deck} drag={()=>{}} drop={()=>{}}/>
 					</Layer>
 				</Stage>
 			</>
