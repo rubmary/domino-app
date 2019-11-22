@@ -7,7 +7,8 @@ type Props = {
     player: number,
     pieces: Array<{id: number, points: Array<number>}>,
     drag: (id: number) => void,
-    drop: ((e: KonvaEventObject<DragEvent>, x:number, y:number, player:number) => void) | (() => void),
+    drop: ((e: KonvaEventObject<DragEvent>, x:number, y:number) => void) | (() => void),
+    move: boolean,
 }
 
 class Hand extends React.Component<Props>{
@@ -17,7 +18,10 @@ class Hand extends React.Component<Props>{
     }
 
     shouldComponentUpdate(nextProps:Props){
-        return this.props.pieces.length !== nextProps.pieces.length;
+        return (
+            (this.props.pieces.length !== nextProps.pieces.length) ||
+            (this.props.move !== nextProps.move)
+        );
     }
     render(){
         console.log(this.props);
@@ -40,6 +44,7 @@ class Hand extends React.Component<Props>{
                     x = {x}
                     y = {y}
                     player={this.props.player}
+                    move={this.props.move}
                     vertical={this.props.player !== 3}
                     drag={() => this.props.drag(piece.id)}
                     drop={this.props.drop}

@@ -7,9 +7,10 @@ type Props = {
     y: number,
     points?: Array<number>,
     player: number,
+    move: boolean,
     vertical: boolean,
     drag: () => void,
-    drop: ((e:KonvaEventObject<DragEvent>, x:number, y:number, player:number) => void) | (() => void),
+    drop: ((e:KonvaEventObject<DragEvent>, x:number, y:number) => void) | (() => void),
 }
 
 type FaceProps = {
@@ -38,9 +39,9 @@ class Piece extends React.Component<Props>{
         <Group 
             x={this.props.x}
             y={this.props.y}
-            draggable={this.props.player === 1 || this.props.player === 2}
+            draggable={this.props.move}
             onDragStart={this.props.drag} 
-            onDragEnd={(e:KonvaEventObject<DragEvent>) => this.props.drop(e, this.props.x, this.props.y, this.props.player)}>
+            onDragEnd={(e:KonvaEventObject<DragEvent>) => this.props.drop(e, this.props.x, this.props.y)}>
             <Rect
                 x = {0}
                 y = {0}

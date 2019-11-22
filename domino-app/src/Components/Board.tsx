@@ -17,6 +17,7 @@ type State = {
 	deck: PieceValue,
 	selected: number,
 	center: number,
+	turn: number,
 	left: {
 		x: number,
 		y: number,
@@ -59,6 +60,7 @@ class Board extends React.Component<{},State>{
 			center: -1,
 			left: {x: -1, y: -1, value: -1},
 			right: {x: -1, y: -1, value: -1},
+			turn: 1,
 		}
 
 	}
@@ -254,8 +256,9 @@ class Board extends React.Component<{},State>{
 		this.setState({selected: id});
 	}
 
-	dragEnd = (e:KonvaEventObject<DragEvent>, x: number, y: number, player:number) => {
-		const { selected, pieces} = this.state;
+	dragEnd = (e:KonvaEventObject<DragEvent>, x: number, y: number) => {
+		const { selected, pieces } = this.state;
+		let { turn } = this.state;
 		const playerOne = [...this.state.playerOne];
 		const playerTwo = [...this.state.playerTwo];
 		let dx, dy;
@@ -268,7 +271,7 @@ class Board extends React.Component<{},State>{
 			dx = nx - this.cx;
 			dy = ny - this.cy;
 			this.setState({center: selected})
-			if(dx*dx + dy*dy <= 10000){
+			if(dx*dx + dy*dy <= 100000){
 				this.pushPiece(true, selected);
 				placed = true;
 			}
@@ -301,13 +304,14 @@ class Board extends React.Component<{},State>{
 				y,
 			});
 		}else{
-			if(player === 1){
+			if(turn === 1){
 				for(let i = 0; i < playerOne.length; i++){
 					if(playerOne[i].id === selected){
 						playerOne.splice(i,1);
 						break;
 					}
 				}
+				turn = 2;
 			}else{
 				for(let i = 0; i < playerTwo.length; i++){
 					if(playerTwo[i].id === selected){
@@ -315,10 +319,11 @@ class Board extends React.Component<{},State>{
 						break;
 					}
 				}
+				turn = 1;
 			}
 			e.target.remove();
 		}
-		this.setState({selected: -1, playerOne, playerTwo});
+		this.setState({selected: -1, playerOne, playerTwo, turn });
 	}
 
 	selectPiece = (id:number) => {
@@ -353,6 +358,7 @@ class Board extends React.Component<{},State>{
 				<Piece
 					x = {this.positions[i].x}
 					y = {this.positions[i].y}
+					move = {false}
 					points = {this.set[piece.id]}
 					vertical = {this.orientation[i]}
 					player={0}
@@ -366,9 +372,9 @@ class Board extends React.Component<{},State>{
 				<Stage width={window.innerWidth} height={window.innerHeight}>
 					<Layer>
 						{draw}
-						<Hand player={1} pieces={this.state.playerOne} drag={this.dragStart} drop={this.dragEnd}/>
-						<Hand player={2} pieces={this.state.playerTwo} drag={this.dragStart} drop={this.dragEnd}/>
-						<Hand player={3} pieces={this.state.deck} drag={()=>{}} drop={()=>{}}/>
+						<Hand player={1} move={this.state.turn === 1} pieces={this.state.playerOne} drag={this.dragStart} drop={this.dragEnd}/>
+						<Hand player={2} move={this.state.turn === 2} pieces={this.state.playerTwo} drag={this.dragStart} drop={this.dragEnd}/>
+						<Hand player={3} move={false} pieces={this.state.deck} drag={()=>{}} drop={()=>{}}/>
 					</Layer>
 				</Stage>
 			</>
