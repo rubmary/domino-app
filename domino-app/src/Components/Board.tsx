@@ -26,7 +26,7 @@ type State = {
 		x: number,
 		y: number,
 		value: number,
-	} 
+	}
 }
 
 class Board extends React.Component<{},State>{
@@ -77,6 +77,7 @@ class Board extends React.Component<{},State>{
 			}
 		}
 	}
+
 	updatePositions(pcs:Array<{id:number, vertical:boolean}>){
 		const pieces = JSON.parse(JSON.stringify(pcs));
 		const { center} = this.state;
@@ -240,6 +241,7 @@ class Board extends React.Component<{},State>{
 		console.log('THIS IS THE NEW LEFT', left);
 		this.setState({left, right, pieces});
 	}
+
 	isMoving = (e:KonvaEventObject<DragEvent>) => {
 		const {x,y} = e.target.getAttrs();
 		console.log(x, y);
