@@ -74,6 +74,18 @@ class Board extends React.Component<{}, State>{
 	cx = window.innerWidth / 2;
 	cy = window.innerHeight / 2;
 
+	componentDidUpdate(prevProps: {}, prevState: State) {
+		if (prevState.turn !== this.state.turn && this.state.winner === 0) {
+			if (this.state.deck.length === 0 &&
+				!canPlay(this.state.playerOne, this.state.left.value, this.state.right.value) &&
+				!canPlay(this.state.playerTwo, this.state.left.value, this.state.right.value)) {
+				const p1 = getPointsSum(this.state.playerOne), p2 = getPointsSum(this.state.playerTwo);
+				if (p1 < p2) this.setState({ winner: 1 });
+				else if (p1 > p2) this.setState({ winner: 2 });
+				else this.setState({ winner: 3 });
+			}
+		}
+	}
 	swapPiece(id: number, prev: number, dir: number) {
 		if (prev !== -1) {
 			if (dir === 1 && prev !== this.set[id][0]) {
@@ -101,13 +113,13 @@ class Board extends React.Component<{}, State>{
 	}
 
 	pass() {
-		if(this.state.winner !== 0){
+		if (this.state.winner !== 0) {
 			alert('Juego terminado');
 			return;
 		}
-		if (this.state.pieces.length === 0){
+		if (this.state.pieces.length === 0) {
 			alert('Existe al menos una jugada posible');
-			return ;
+			return;
 		}
 		const playerOne = [...this.state.playerOne];
 		const playerTwo = [...this.state.playerTwo];
@@ -418,14 +430,19 @@ class Board extends React.Component<{}, State>{
 				/>
 			)
 		});
+		let message;
+		if (this.state.winner === 0) {
+			message = 'Turno del jugador ' + this.state.turn;
+		} else if (this.state.winner === 3) {
+			message = 'Juego terminado. Empate';
+		} else {
+			message = 'Juego terminado. Gana ' + this.state.winner + ' con ' +
+				getPointsSum(this.state.turn === 1 ? this.state.playerOne : this.state.playerTwo) + ' puntos'
+		}
 		return (
 			<>
 				<h1 className='gameStatus'>
-					{this.state.winner === 0
-						? ('Turno del jugador ' + this.state.turn)
-						: ('Juego terminado. Gana ' + this.state.winner + ' con ' + 
-						getPointsSum(this.state.turn === 1 ? this.state.playerOne : this.state.playerTwo) + ' puntos')
-					}
+					{message}
 				</h1>
 				<Stage width={window.innerWidth} height={window.innerHeight}>
 					<Layer>
