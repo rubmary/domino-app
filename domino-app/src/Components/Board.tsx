@@ -6,7 +6,7 @@ import { number } from 'prop-types';
 import Piece from './Piece';
 import Hand from './Hand';
 
-import { checkDouble, canPlay } from '../utils';
+import { checkDouble, canPlay, getPointsSum } from '../utils';
 import PassButton from './PassButton';
 
 type PieceValue = Array<{ id: number, points: Array<number> }>
@@ -101,15 +101,22 @@ class Board extends React.Component<{}, State>{
 	}
 
 	pass() {
-		if (this.state.pieces.length === 0) return;
+		if(this.state.winner !== 0){
+			alert('Juego terminado');
+			return;
+		}
+		if (this.state.pieces.length === 0){
+			alert('Existe al menos una jugada posible');
+			return ;
+		}
 		const playerOne = [...this.state.playerOne];
 		const playerTwo = [...this.state.playerTwo];
 		if (this.state.turn === 1 && canPlay(playerOne, this.state.left.value, this.state.right.value)) {
-			alert('Existe una jugada posible');
+			alert('Existe al menos una jugada posible');
 			return;
 		}
 		if (this.state.turn === 2 && canPlay(playerTwo, this.state.left.value, this.state.right.value)) {
-			alert('Existe una jugada posible');
+			alert('Existe al menos una jugada posible');
 			return;
 		}
 		if (!this.state.took && this.state.deck.length > 0) {
@@ -416,7 +423,8 @@ class Board extends React.Component<{}, State>{
 				<h1 className='gameStatus'>
 					{this.state.winner === 0
 						? ('Turno del jugador ' + this.state.turn)
-						: ('Juego terminado. Gana ' + this.state.winner)
+						: ('Juego terminado. Gana ' + this.state.winner + ' con ' + 
+						getPointsSum(this.state.turn === 1 ? this.state.playerOne : this.state.playerTwo) + ' puntos')
 					}
 				</h1>
 				<Stage width={window.innerWidth} height={window.innerHeight}>

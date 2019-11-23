@@ -39,6 +39,12 @@ export const canPlay = (pieces: Array<{ id: number, points: Array<number> }>, le
     return found !== undefined;
 }
 
+export const getPointsSum = (pieces: Array< {id: number, points: Array<number>}>) => {
+    return pieces.reduce((previousValue:number, current: { id: number, points: Array<number> }) => {
+        return previousValue + current.points[0] + current.points[1];
+    },0);
+}
+
 export const initialState = (
     game: StateGame,
     playerOne: Array<Piece>,
