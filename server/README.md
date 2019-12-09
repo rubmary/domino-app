@@ -1,3 +1,5 @@
+# Servidor para obtener la estrategia en el juego
+
 Instrucciones
 
 ```
