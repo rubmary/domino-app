@@ -6,7 +6,6 @@ game = Game()
 
 @main.route('/get_strategy')
 def get_strategy():
-
     state = request.get_json()
     information_set = InformationSet(state['history'], state['hand'])
     return game.get_strategy(information_set)

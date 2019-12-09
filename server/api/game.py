@@ -46,7 +46,6 @@ class InformationSet:
 
 class Game:
     def __init__(self):
-        print("Leyendo los conjuntos de informacion...")
         file = open("strategy/information_sets.txt")
         I = {}
         N = int(file.readline())
@@ -63,7 +62,6 @@ class Game:
         file.close()
         self.I = I
         self.strategy = strategy
-        print("Set strategy")
 
     def read_information_set(self, file):
         line = file.readline().split()
