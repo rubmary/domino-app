@@ -56,13 +56,15 @@ export const initialGameState = (
 	playerTwo: PieceValue,
 	pack: PieceValue
 ) => {
-	const maxPoint = 7;
-	const initialHand = 14;
+	const maxPoint = 6;
+	const initialHand = 7;
 	const totalPieces = (maxPoint + 1) * (maxPoint + 2) / 2 - 2 * initialHand;
-	let handPlayerOne = new Array(maxPoint).fill(null).map((_, i: number) => {
+	console.log("totalPieces", totalPieces);
+	console.log("initialHand", initialHand);
+	let handPlayerOne = new Array(initialHand).fill(null).map((_, i: number) => {
 		return { first: playerOne[i].points[0], second: playerOne[i].points[1] }
 	})
-	let handPlayerTwo = new Array(maxPoint).fill(null).map((_, i: number) => {
+	let handPlayerTwo = new Array(initialHand).fill(null).map((_, i: number) => {
 		return { first: playerTwo[i].points[0], second: playerTwo[i].points[1] }
 	})
 	let packGame = new Array(totalPieces).fill(null).map((_, i: number) => {
@@ -92,16 +94,14 @@ export const initialGameState = (
 	return game;
 }
 
-export const putAction = (game: GameState, action: Action, reverseOrientation: boolean) => {
-	if (reverseOrientation) {
-		game.orientation = !game.orientation;
-	}
+export const putAction = (game: GameState, action: Action, orientation: boolean) => {
+	game.orientation = orientation;
 
 	if (!game.orientation) {
 		if (action.side === "left") {
+			console.log("Cambiar de izquierda a derecha");
 			action.side = "right";
-		}
-		if (action.side === "right") {
+		} else if (action.side === "right") {
 			action.side = "left";
 		}
 	}

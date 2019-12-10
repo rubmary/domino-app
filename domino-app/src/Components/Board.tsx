@@ -52,8 +52,8 @@ class Board extends React.Component<{}, State>{
 	gameState: GameState;
 	pieceTaken: DominoPiece = {first: -1, second: -1};
 
-	constructor() {
-		super({});
+	constructor(props : {}) {
+		super(props);
 		for (let i = 0; i <= 6; i++) {
 			for (let j = i; j <= 6; j++) {
 				this.set.push([i, j]);
@@ -155,7 +155,9 @@ class Board extends React.Component<{}, State>{
 				side: "pass"
 			};
 			this.pieceTaken = {first: -1, second: -1};
-			putAction(this.gameState, action, false);
+			const orientation = this.gameState.orientation;
+			putAction(this.gameState, action, orientation);
+			logGameState(this.gameState);
 			this.setState({ turn: this.state.turn === 1 ? 2 : 1, took: this.state.deck.length === 0 });
 		}
 	}
@@ -398,7 +400,10 @@ class Board extends React.Component<{}, State>{
 	}
 
 	pushPiece(right: boolean, id: number) {
-		const reverseOrientation : boolean = right && this.state.left.value === this.state.right.value;
+		let orientation = this.gameState.orientation;
+		if (this.state.left.value === this.state.right.value) {
+			orientation = !right;
+		}
 		const pieces = [...this.state.pieces];
 		if (!right) {
 			pieces.unshift({
@@ -421,7 +426,7 @@ class Board extends React.Component<{}, State>{
 			taken: {first: this.pieceTaken.first, second: this.pieceTaken.second},
 			side: right ? "right" : "left"
 		};
-		putAction(this.gameState, action, reverseOrientation);
+		putAction(this.gameState, action, orientation);
 		this.pieceTaken = {first: -1, second: -1};
 		logGameState(this.gameState);
 		this.updatePositions(pieces);
@@ -432,6 +437,7 @@ class Board extends React.Component<{}, State>{
 		const draw = pieces.map((piece: { id: number, vertical: boolean }, i: number) => {
 			return (
 				<Piece
+					key={piece.id}
 					x={this.positions[i].x}
 					y={this.positions[i].y}
 					move={false}
