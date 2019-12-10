@@ -54,7 +54,7 @@ class Piece extends React.Component<Props>{
             >
             </Rect>
             <Face 
-                points={this.props.points ? this.props.points[0] : 3} 
+                points={this.props.points ? this.props.points[0] : 3}
                 ver={this.props.vertical} 
                 cx={cx - (this.props.vertical ? 0 : 25)}
                 cy={cy - (this.props.vertical ? 25 : 0)}
