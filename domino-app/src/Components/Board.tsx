@@ -5,11 +5,22 @@ import { KonvaEventObject } from 'konva/types/Node';
 import { number } from 'prop-types';
 import Piece from './Piece';
 import Hand from './Hand';
-
-import { checkDouble, canPlay, getPointsSum } from '../utils';
 import PassButton from './PassButton';
 
-type PieceValue = Array<{ id: number, points: Array<number> }>
+import {
+	checkDouble,
+	canPlay,
+	getPointsSum,
+	DominoPiece,
+	Action,
+	GameState,
+	initialGameState,
+	putAction,
+	logGameState
+} from '../utils';
+
+
+export type PieceValue = Array<{ id: number, points: Array<number> }>
 
 type State = {
 	pieces: Array<{ id: number, vertical: boolean }>,
@@ -40,6 +51,8 @@ class Board extends React.Component<{}, State>{
 	positions: Array<{ x: number, y: number }> = [];
 	orientation: Array<boolean> = [];
 	set: Array<Array<number>> = [];
+	gameState: GameState;
+
 	constructor() {
 		super({});
 		for (let i = 0; i <= 6; i++) {
@@ -68,7 +81,8 @@ class Board extends React.Component<{}, State>{
 			took: false,
 			winner: 0,
 		}
-
+		this.gameState = initialGameState(this.state.playerOne, this.state.playerTwo, this.state.deck);
+		logGameState(this.gameState);
 	}
 
 	cx = window.innerWidth / 2;
@@ -86,6 +100,7 @@ class Board extends React.Component<{}, State>{
 			}
 		}
 	}
+
 	swapPiece(id: number, prev: number, dir: number) {
 		if (prev !== -1) {
 			if (dir === 1 && prev !== this.set[id][0]) {
