@@ -27,7 +27,7 @@ const Face = (props: FaceProps) => {
     for(let i = 0; i < pos.length; i++){
         const dy = Math.floor(pos[i]/3) - 1,
               dx = pos[i]%3 - 1;
-        dots.push(<Circle fill='black' radius={5} x={cx+dx*15} y={cy+dy*15} />);
+        dots.push(<Circle key={i} fill='black' radius={5} x={cx+dx*15} y={cy+dy*15} />);
     }
     return <>{dots}</>;
 }
@@ -54,7 +54,7 @@ class Piece extends React.Component<Props>{
             >
             </Rect>
             <Face 
-                points={this.props.points ? this.props.points[0] : 3} 
+                points={this.props.points ? this.props.points[0] : 3}
                 ver={this.props.vertical} 
                 cx={cx - (this.props.vertical ? 0 : 25)}
                 cy={cy - (this.props.vertical ? 25 : 0)}

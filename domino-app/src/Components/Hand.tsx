@@ -1,5 +1,4 @@
 import React from 'react';
-import {Rect} from 'react-konva';
 import Piece from './Piece';
 import { KonvaEventObject } from 'konva/types/Node';
 
@@ -13,10 +12,6 @@ type Props = {
 
 class Hand extends React.Component<Props>{
 
-    constructor(props:Props){
-        super(props);
-    }
-
     shouldComponentUpdate(nextProps:Props){
         return (
             (this.props.pieces.length !== nextProps.pieces.length) ||
@@ -24,7 +19,6 @@ class Hand extends React.Component<Props>{
         );
     }
     render(){
-        console.log(this.props);
         const {pieces} = this.props;
         const m = (pieces.length-1)/2;
         const cx = window.innerWidth/2;

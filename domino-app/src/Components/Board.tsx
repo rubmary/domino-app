@@ -1,15 +1,24 @@
 import React from 'react';
-import { Stage, Layer, Rect, Circle } from 'react-konva';
-import Konva from 'konva';
+import { Stage, Layer } from 'react-konva';
 import { KonvaEventObject } from 'konva/types/Node';
-import { number } from 'prop-types';
 import Piece from './Piece';
 import Hand from './Hand';
-
-import { checkDouble, canPlay, getPointsSum } from '../utils';
 import PassButton from './PassButton';
 
-type PieceValue = Array<{ id: number, points: Array<number> }>
+import {
+	checkDouble,
+	canPlay,
+	getPointsSum,
+	DominoPiece,
+	Action,
+	GameState,
+	initialGameState,
+	putAction,
+	logGameState
+} from '../utils';
+
+
+export type PieceValue = Array<{ id: number, points: Array<number> }>
 
 type State = {
 	pieces: Array<{ id: number, vertical: boolean }>,
@@ -40,8 +49,11 @@ class Board extends React.Component<{}, State>{
 	positions: Array<{ x: number, y: number }> = [];
 	orientation: Array<boolean> = [];
 	set: Array<Array<number>> = [];
-	constructor() {
-		super({});
+	gameState: GameState;
+	pieceTaken: DominoPiece = {first: -1, second: -1};
+
+	constructor(props : {}) {
+		super(props);
 		for (let i = 0; i <= 6; i++) {
 			for (let j = i; j <= 6; j++) {
 				this.set.push([i, j]);
@@ -68,7 +80,8 @@ class Board extends React.Component<{}, State>{
 			took: false,
 			winner: 0,
 		}
-
+		this.gameState = initialGameState(this.state.playerOne, this.state.playerTwo, this.state.deck);
+		logGameState(this.gameState);
 	}
 
 	cx = window.innerWidth / 2;
@@ -86,6 +99,7 @@ class Board extends React.Component<{}, State>{
 			}
 		}
 	}
+
 	swapPiece(id: number, prev: number, dir: number) {
 		if (prev !== -1) {
 			if (dir === 1 && prev !== this.set[id][0]) {
@@ -104,11 +118,12 @@ class Board extends React.Component<{}, State>{
 		const deck = [...this.state.deck];
 		const playerOne = [...this.state.playerOne];
 		const playerTwo = [...this.state.playerTwo];
-		const piece = deck.shift();
+		const piece = deck.shift()!;
 		if (piece) {
 			if (this.state.turn === 1) playerOne.push(piece);
 			else playerTwo.push(piece);
 		}
+		this.pieceTaken = {first: piece.points[0], second: piece.points[1]};
 		this.setState({ deck, playerOne, playerTwo, took: true });
 	}
 
@@ -134,6 +149,15 @@ class Board extends React.Component<{}, State>{
 		if (!this.state.took && this.state.deck.length > 0) {
 			this.takeFromDeck();
 		} else {
+			const action : Action = {
+				placed: {first: -1, second: -1},
+				taken: {first: this.pieceTaken.first, second: this.pieceTaken.second},
+				side: "pass"
+			};
+			this.pieceTaken = {first: -1, second: -1};
+			const orientation = this.gameState.orientation;
+			putAction(this.gameState, action, orientation);
+			logGameState(this.gameState);
 			this.setState({ turn: this.state.turn === 1 ? 2 : 1, took: this.state.deck.length === 0 });
 		}
 	}
@@ -143,7 +167,6 @@ class Board extends React.Component<{}, State>{
 		const { center } = this.state;
 
 		let pos = -1;
-		console.log(center, pieces);
 		for (let i = 0; i < pieces.length; i++) {
 			if (pieces[i].id === center) {
 				pos = i;
@@ -158,7 +181,7 @@ class Board extends React.Component<{}, State>{
 
 		this.orientation[pos] = checkDouble(this.set[pieces[pos].id]);
 		for (let i = pos; i < pieces.length; i++) {
-			const { id, vertical } = pieces[i];
+			const { id } = pieces[i];
 			let double = checkDouble(this.set[id]);
 			let far = (double ? (px + dir * 125) : (px + dir * 50));
 			if (far <= 175 || far >= window.innerWidth - 100) {
@@ -175,7 +198,6 @@ class Board extends React.Component<{}, State>{
 					this.orientation[i] = true;
 					this.positions[i] = { x: px - 25, y: py - 50 };
 					this.swapPiece(pieces[i].id, prev, 1);
-					console.log("HEY");
 					prev = this.set[pieces[i].id][1];
 					if (++i === pieces.length) break;
 					py += 25;
@@ -194,7 +216,6 @@ class Board extends React.Component<{}, State>{
 					this.orientation[i] = true;
 					this.positions[i] = { x: px - 25, y: py - 50 };
 					this.swapPiece(pieces[i].id, prev, 1);
-					console.log("HEY");
 					prev = this.set[pieces[i].id][1];
 					if (++i === pieces.length) break;
 					py += 25;
@@ -230,7 +251,7 @@ class Board extends React.Component<{}, State>{
 		dir = -1;
 		prev = -1;
 		for (let i = pos; (pieces.length > 0) && i >= 0; i--) {
-			const { id, vertical } = pieces[i];
+			const { id } = pieces[i];
 			let double = checkDouble(this.set[id]);
 			let far = (double ? (px + dir * 125) : (px + dir * 50));
 			if (far <= 175 || far >= window.innerWidth - 100) {
@@ -241,14 +262,12 @@ class Board extends React.Component<{}, State>{
 				this.orientation[i] = true;
 				this.swapPiece(id, prev, -1);
 				prev = this.set[id][0];
-				console.log('P', prev);
 				if (--i === -1) break;
 				if (!checkDouble(this.set[pieces[i].id])) {
 					py -= 100;
 					this.orientation[i] = true;
 					this.positions[i] = { x: px - 25, y: py - 50 };
 					this.swapPiece(pieces[i].id, prev, -1);
-					console.log("HEY");
 					prev = this.set[pieces[i].id][0];
 					if (--i === -1) break;
 					py -= 25;
@@ -267,7 +286,6 @@ class Board extends React.Component<{}, State>{
 					this.orientation[i] = true;
 					this.positions[i] = { x: px - 25, y: py - 50 };
 					this.swapPiece(pieces[i].id, prev, -1);
-					console.log("HEY");
 					prev = this.set[pieces[i].id][0];
 					if (--i === -1) break;
 					py -= 25;
@@ -297,18 +315,10 @@ class Board extends React.Component<{}, State>{
 			}
 		}
 		const left = { x: px, y: py, value: prev };
-
-		console.log('THIS IS THE NEW LEFT', left);
 		this.setState({ left, right, pieces });
 	}
 
-	isMoving = (e: KonvaEventObject<DragEvent>) => {
-		const { x, y } = e.target.getAttrs();
-		console.log(x, y);
-	}
-
 	dragStart = (id: number) => {
-		console.log(id);
 		this.setState({ selected: id });
 	}
 
@@ -322,23 +332,19 @@ class Board extends React.Component<{}, State>{
 		const attrs = e.currentTarget.getAttrs();
 		const nx = attrs.x + 25, ny = attrs.y + 50;
 
-		console.log('WHAT', nx, ny);
 		if (pieces.length === 0) {
 			dx = nx - this.cx;
 			dy = ny - this.cy;
 			this.setState({ center: selected })
 			if (dx * dx + dy * dy <= 100000) {
-				this.pushPiece(true, selected);
+				this.pushPiece(false, selected);
 				placed = true;
 			}
 		} else {
 			let dx1, dx2, dy1, dy2;
-			console.log('WE', nx, ny);
 
-			console.log(this.state.left, this.state.right);
 			dx1 = nx - this.state.left.x; dx2 = nx - this.state.right.x;
 			dy1 = ny - this.state.left.y; dy2 = ny - this.state.right.y;
-			console.log(dx1 * dx1 + dy1 * dy1, dx2 * dx2 + dy2 * dy2);
 			if (dx1 * dx1 + dy1 * dy1 < dx2 * dx2 + dy2 * dy2 && dx1 * dx1 + dy1 * dy1 <= 10000) {
 				const { value } = this.state.left;
 				if (value === this.set[selected][0] || value === this.set[selected][1]) {
@@ -390,11 +396,14 @@ class Board extends React.Component<{}, State>{
 	}
 
 	selectPiece = (id: number) => {
-		console.log(id);
 		this.setState({ selected: id });
 	}
 
 	pushPiece(right: boolean, id: number) {
+		let orientation = this.gameState.orientation;
+		if (this.state.left.value === this.state.right.value) {
+			orientation = !right;
+		}
 		const pieces = [...this.state.pieces];
 		if (!right) {
 			pieces.unshift({
@@ -411,6 +420,15 @@ class Board extends React.Component<{}, State>{
 			this.positions.push({ x: -1, y: -1 });
 			this.orientation.unshift(false);
 		}
+
+		const action : Action = {
+			placed: {first: this.set[id][0], second: this.set[id][1]},
+			taken: {first: this.pieceTaken.first, second: this.pieceTaken.second},
+			side: right ? "right" : "left"
+		};
+		putAction(this.gameState, action, orientation);
+		this.pieceTaken = {first: -1, second: -1};
+		logGameState(this.gameState);
 		this.updatePositions(pieces);
 	}
 
@@ -419,6 +437,7 @@ class Board extends React.Component<{}, State>{
 		const draw = pieces.map((piece: { id: number, vertical: boolean }, i: number) => {
 			return (
 				<Piece
+					key={piece.id}
 					x={this.positions[i].x}
 					y={this.positions[i].y}
 					move={false}
@@ -431,18 +450,23 @@ class Board extends React.Component<{}, State>{
 			)
 		});
 		let message;
+		let messagePoints = "";
 		if (this.state.winner === 0) {
 			message = 'Turno del jugador ' + this.state.turn;
 		} else if (this.state.winner === 3) {
-			message = 'Juego terminado. Empate';
+			message = 'Juego terminado'
+			messagePoints = 'Empate';
 		} else {
-			message = 'Juego terminado. Gana ' + this.state.winner + ' con ' +
+			message = 'Juego terminado'
+			messagePoints = 'Gana ' + this.state.winner + ' con ' +
 				getPointsSum(this.state.turn === 1 ? this.state.playerOne : this.state.playerTwo) + ' puntos'
 		}
 		return (
 			<>
 				<h1 className='gameStatus'>
 					{message}
+					<br>{}</br>
+					{messagePoints}
 				</h1>
 				<Stage width={window.innerWidth} height={window.innerHeight}>
 					<Layer>
