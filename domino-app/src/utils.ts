@@ -48,7 +48,9 @@ export type GameState = {
 	player: number,
 	maxPoint: number,
 	initialHand: number,
-	orientation: boolean
+	orientation: boolean,
+	left: number,
+	right: number
 }
 
 export const initialGameState = (
@@ -88,7 +90,9 @@ export const initialGameState = (
 		player:1,
 		maxPoint: maxPoint,
 		initialHand: initialHand,
-		orientation: true
+		orientation: true,
+		left: -1,
+		right: -1
 	};
 
 	return game;
@@ -99,13 +103,11 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
 
 	if (!game.orientation) {
 		if (action.side === "left") {
-			console.log("Cambiar de izquierda a derecha");
 			action.side = "right";
 		} else if (action.side === "right") {
 			action.side = "left";
 		}
 	}
-
 	if (action.side === "pass") {
 		for (let i = 0; i < game.pack.length; i++) {
 			if (game.pack[i].first === action.taken.first &&
@@ -119,6 +121,18 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
 			if (currentHand[i].first === action.placed.first &&
 				currentHand[i].second === action.placed.second) {
 				currentHand.splice(i, 1);
+			}
+		}
+		if (game.history.length === 0) {
+			game.left = action.placed.first;
+			game.right = action.placed.second;
+		} else {
+			const previousSide = action.side === "left" ? game.left : game.right;
+			const newSide = previousSide === action.placed.first ? action.placed.second : action.placed.first;
+			if (action.side === "left"){
+				game.left  = newSide;
+			} else{
+				game.right = newSide;
 			}
 		}
 	}
@@ -160,5 +174,6 @@ export const logGameState = (game: GameState) => {
 		pack = pack + " " + stringPiece(game.pack[i]);
 	}
 	console.log("Pack:      " + pack);
+	console.log("(left, right) = (" + game.left + "," + game.right +")");
 	console.log("-------------------------------------------------------------------")
 }

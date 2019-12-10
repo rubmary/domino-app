@@ -450,18 +450,23 @@ class Board extends React.Component<{}, State>{
 			)
 		});
 		let message;
+		let messagePoints = "";
 		if (this.state.winner === 0) {
 			message = 'Turno del jugador ' + this.state.turn;
 		} else if (this.state.winner === 3) {
-			message = 'Juego terminado. Empate';
+			message = 'Juego terminado'
+			messagePoints = 'Empate';
 		} else {
-			message = 'Juego terminado. Gana ' + this.state.winner + ' con ' +
+			message = 'Juego terminado'
+			messagePoints = 'Gana ' + this.state.winner + ' con ' +
 				getPointsSum(this.state.turn === 1 ? this.state.playerOne : this.state.playerTwo) + ' puntos'
 		}
 		return (
 			<>
 				<h1 className='gameStatus'>
 					{message}
+					<br>{}</br>
+					{messagePoints}
 				</h1>
 				<Stage width={window.innerWidth} height={window.innerHeight}>
 					<Layer>
