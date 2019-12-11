@@ -1,9 +1,13 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
+import {
+	Button,
+	Modal,
+	Form,
+	Row,
+	Col,
+	OverlayTrigger,
+	Tooltip
+} from 'react-bootstrap';
 
 type State = {
 	show: boolean,
@@ -27,31 +31,54 @@ class OptionsWindow extends React.Component<Props, State> {
 
 	// const [show, setShow] = useState(false);
 	handleClose = () => {
+		if(this.noValid()) {
+			return;
+		}
+		this.setState({show: false});
+		this.props.showBoard(this.state.player1, this.state.player2);
+	}
+
+	onChange = (player: string, type: string) => {
 		const map : {[id: string] : string} = {
 			'Computadora': 'pc',
 			'Jugador': 'player'
 		};
-		const player1 = map[this.state.player1];
-		const player2 = map[this.state.player2];
-		if (player1 === 'player' && player2 === 'player') {
-			return;
+		if(player === '1') {
+			this.setState({player1: map[type]});
+		} else {
+			this.setState({player2: map[type]});
 		}
-		this.setState({show: false});
-		this.props.showBoard(map[this.state.player1], map[this.state.player2]);
 	}
 
-	onChange = (player: string, type: string) => {
-		if(player === '1') {
-			this.setState({player1: type});
-		} else {
-			this.setState({player2: type});
+	tooltip = () => {
+		if(this.state.player1 === '' || this.state.player2 === '') {
+			return (
+				<Tooltip id='tooltip1'>
+					Selecciona el modo de ambos jugadores
+				</Tooltip>
+			);
 		}
+		if(this.state.player1 === 'player' && this.state.player2 === 'player') {
+			return (
+				<Tooltip id='tooltip2'>
+					Al menos uno de los jugadores debe ser la computadora
+				</Tooltip>
+			);
+		}
+		return (<Tooltip id='tooltip3'>Click para jugar</Tooltip>);
+	}
+
+	noValid = () => {
+		return (
+			this.state.player1 === '' ||
+			this.state.player2 === '' ||
+			(this.state.player1 === 'player' && this.state.player2 === 'player')
+		);
 	}
 
 	render () {
-
 		return (
-			<Modal show={this.state.show}>
+			<Modal show={this.state.show} onHide={() => {}}>
 				<Modal.Header>
 					<Modal.Title>Configuración</Modal.Title>
 				</Modal.Header>
@@ -76,9 +103,18 @@ class OptionsWindow extends React.Component<Props, State> {
 					</Form.Group>
 				))} </Modal.Body>
 				<Modal.Footer>
-					<Button variant="primary" onClick={this.handleClose}>
-						OK
-					</Button>
+					<OverlayTrigger
+						placement="right"
+						delay={{ show: 250, hide: 400 }}
+						overlay={this.tooltip()}
+						trigger={['click', 'hover', 'focus']}
+					>
+						<Button
+							variant="primary"
+							onClick={this.handleClose}
+						> OK
+						</Button>
+					</OverlayTrigger>
 				</Modal.Footer>
 			</Modal>
 		);
