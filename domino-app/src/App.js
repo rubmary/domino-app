@@ -1,13 +1,11 @@
 import React from 'react';
-import Board from './Components/Board'
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import Main from './Components/Main'
+
 
 function App() {
-  return (
-    <div className="App">
-      <Board/>
-    </div>
-  );
+  return <Main/>;
 }
 
 export default App;
