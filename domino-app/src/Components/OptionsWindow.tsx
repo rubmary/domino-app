@@ -1,49 +1,83 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 
 type State = {
-	show: boolean
+	show: boolean,
+	player1: string,
+	player2: string
 };
 
 type Props = {
-	showBoard: () => void
+	showBoard: (player1: string, player2: string) => void
 };
 
 class OptionsWindow extends React.Component<Props, State> {
 	constructor(props : Props) {
 		super(props);
 		this.state = {
-			show : true
+			show : true,
+			player1 : '',
+			player2 : ''
 		};
 	}
 
 	// const [show, setShow] = useState(false);
 	handleClose = () => {
+		const map : {[id: string] : string} = {
+			'Computadora': 'pc',
+			'Jugador': 'player'
+		};
+		const player1 = map[this.state.player1];
+		const player2 = map[this.state.player2];
+		if (player1 === 'player' && player2 === 'player') {
+			return;
+		}
 		this.setState({show: false});
-		this.props.showBoard();
+		this.props.showBoard(map[this.state.player1], map[this.state.player2]);
 	}
 
-	handleShow = () => {
-		this.setState({show: true});
+	onChange = (player: string, type: string) => {
+		if(player === '1') {
+			this.setState({player1: type});
+		} else {
+			this.setState({player2: type});
+		}
 	}
 
 	render () {
-		console.log("INSIDE MODAL");
+
 		return (
 			<Modal show={this.state.show}>
-				<Modal.Header closeButton>
-					<Modal.Title>Modal heading</Modal.Title>
+				<Modal.Header>
+					<Modal.Title>Configuración</Modal.Title>
 				</Modal.Header>
-				<Modal.Body>
-					Woohoo, you are reading this text in a modal!
-				</Modal.Body>
+				<Modal.Body> {
+					['1', '2'].map( player => (
+					<Form.Group as={Row} key={player}>
+						<Form.Label column sm={3}>
+							Jugador {player}
+						</Form.Label>
+						<Col sm={15}>
+							{['Computadora', 'Jugador'].map(type => (
+								<Form.Check
+									onChange={() => this.onChange(player, type)}
+									type="radio"
+									label={type}
+									name={player}
+									key={type}
+									id={type+player}
+								/>
+							))}
+						</Col>
+					</Form.Group>
+				))} </Modal.Body>
 				<Modal.Footer>
-					<Button variant="secondary" onClick={this.handleClose}>
-						Close
-					</Button>
 					<Button variant="primary" onClick={this.handleClose}>
-						Save Changes
+						OK
 					</Button>
 				</Modal.Footer>
 			</Modal>

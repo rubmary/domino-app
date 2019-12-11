@@ -3,7 +3,9 @@ import Board from './Board'
 import OptionsWindow from './OptionsWindow';
 
 type State = {
-	board: boolean
+	board: boolean,
+	player1: string,
+	player2: string
 };
 
 class Main extends React.Component<{}, State> {
@@ -11,17 +13,26 @@ class Main extends React.Component<{}, State> {
 	constructor(props : {}) {
 		super(props);
 		this.state = {
-			board: false
+			board: false,
+			player1: '',
+			player2: '',
 		};
 	}
 
-	showBoard = () => {
-		this.setState({board: true});
+	showBoard = (player1: string, player2: string) => {
+		this.setState({
+			board: true,
+			player1: player1,
+			player2: player2,
+		});
 	}
 
 	render() {
 		const component = this.state.board ?
-			<Board/> :
+			<Board
+				player1={this.state.player1}
+				player2={this.state.player2}
+			/> :
 			<OptionsWindow showBoard={this.showBoard}/>;
 		return (component);
 	}
