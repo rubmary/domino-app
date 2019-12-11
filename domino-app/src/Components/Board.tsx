@@ -42,9 +42,14 @@ type State = {
 
 	winner: number,
 	took: boolean,
+};
+
+type Props = {
+	player1: string,
+	player2: string
 }
 
-class Board extends React.Component<{}, State>{
+class Board extends React.Component<Props, State>{
 
 	positions: Array<{ x: number, y: number }> = [];
 	orientation: Array<boolean> = [];
@@ -52,7 +57,7 @@ class Board extends React.Component<{}, State>{
 	gameState: GameState;
 	pieceTaken: DominoPiece = {first: -1, second: -1};
 
-	constructor(props : {}) {
+	constructor(props : Props) {
 		super(props);
 		for (let i = 0; i <= 6; i++) {
 			for (let j = i; j <= 6; j++) {
@@ -82,6 +87,7 @@ class Board extends React.Component<{}, State>{
 		}
 		this.gameState = initialGameState(this.state.playerOne, this.state.playerTwo, this.state.deck);
 		logGameState(this.gameState);
+		console.log(this.props);
 	}
 
 	cx = window.innerWidth / 2;
