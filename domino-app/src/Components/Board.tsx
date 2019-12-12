@@ -4,6 +4,7 @@ import { KonvaEventObject } from 'konva/types/Node';
 import Piece from './Piece';
 import Hand from './Hand';
 import PassButton from './PassButton';
+import NextButton from './NextButton';
 
 import {
 	checkDouble,
@@ -59,12 +60,16 @@ class Board extends React.Component<Props, State>{
 
 	constructor(props : Props) {
 		super(props);
-		for (let i = 0; i <= 6; i++) {
-			for (let j = i; j <= 6; j++) {
+		const maxPoint = 6;
+		const initialHand = 7;
+		const totalPieces = (maxPoint+1)*(maxPoint+2)/2 - 2*initialHand;
+
+		for (let i = 0; i <= maxPoint; i++) {
+			for (let j = i; j <= maxPoint; j++) {
 				this.set.push([i, j]);
 			}
 		}
-
+		console.log(this.set);
 		for (let i = 0; i < this.set.length; i++) {
 			let j = Math.floor(Math.random() * (this.set.length - i));
 			let t = this.set[i];
@@ -74,9 +79,15 @@ class Board extends React.Component<Props, State>{
 
 		this.state = {
 			pieces: [],
-			playerOne: new Array(7).fill(null).map((_, i: number) => { return { id: i, points: this.set[i] } }),
-			playerTwo: new Array(7).fill(null).map((_, i: number) => { return { id: i + 7, points: this.set[i + 7] } }),
-			deck: new Array(14).fill(null).map((_, i: number) => { return { id: i + 14, points: this.set[i + 14] } }),
+			playerOne: new Array(initialHand).fill(null).map((_, i: number) => {
+				return { id: i, points: this.set[i] }
+			}),
+			playerTwo: new Array(initialHand).fill(null).map((_, i: number) => {
+				return { id: i + initialHand, points: this.set[i + initialHand] }
+			}),
+			deck: new Array(totalPieces).fill(null).map((_, i: number) => {
+				return { id: i + 2*initialHand, points: this.set[i + 2*initialHand] }
+			}),
 			selected: -1,
 			center: -1,
 			left: { x: -1, y: -1, value: -1 },
@@ -438,6 +449,61 @@ class Board extends React.Component<Props, State>{
 		this.updatePositions(pieces);
 	}
 
+	nextMove() {
+		if (this.state.winner !== 0) {
+			alert('Juego terminado');
+			return;
+		}
+		const {turn} = this.state;
+		const newTurn = turn === 1 ? 2 : 1;
+		const playerType = turn === 1 ? this.props.player1 : this.props.player2;
+		if (playerType === 'player') {
+			alert('Debes realizar una jugada');
+			return;
+		}
+		let playerOne = [...this.state.playerOne];
+		let playerTwo = [...this.state.playerTwo];
+		let hand = turn === 1 ? playerOne : playerTwo;
+		const left = this.state.left.value;
+		const right = this.state.right.value;
+
+		if (left === -1 && right === -1) {
+			this.setState({ center: hand[0].id })
+			this.pushPiece(false, hand[0].id);
+			hand.splice(0, 1);
+			this.setState({turn: newTurn, playerTwo, playerOne});
+			return;
+		}
+
+		if(!canPlay(hand, left, right)) {
+			this.takeFromDeck();
+			playerOne = [...this.state.playerOne];
+			playerTwo = [...this.state.playerTwo];
+			hand = turn === 1 ? playerOne : playerTwo;
+			if(!canPlay(hand, left, right)) {
+				this.pass();
+				return;
+			}
+		}
+		for (let i = 0; i < hand.length; i++) {
+			let piece = hand[i].points;
+			if(piece[0] === left || piece[1] === left) {
+				this.pushPiece(false, hand[i].id);
+				hand.splice(i, 1);
+				let winner = hand.length === 0 ? turn : 0;
+				this.setState({turn: newTurn, playerTwo, playerOne, winner});
+				return;
+			}
+			if(piece[0] === right || piece[1] === right) {
+				this.pushPiece(true, hand[i].id);
+				hand.splice(i, 1);
+				let winner = hand.length === 0 ? turn : 0;
+				this.setState({turn: newTurn, playerTwo, playerOne, winner});
+				return;
+			}
+		}
+	}
+
 	render() {
 		const { pieces } = this.state;
 		const draw = pieces.map((piece: { id: number, vertical: boolean }, i: number) => {
@@ -477,9 +543,36 @@ class Board extends React.Component<Props, State>{
 				<Stage width={window.innerWidth} height={window.innerHeight}>
 					<Layer>
 						{draw}
-						<Hand player={1} move={this.state.winner === 0 && this.state.turn === 1} pieces={this.state.playerOne} drag={this.dragStart} drop={this.dragEnd} />
-						<Hand player={2} move={this.state.winner === 0 && this.state.turn === 2} pieces={this.state.playerTwo} drag={this.dragStart} drop={this.dragEnd} />
-						<Hand player={3} move={false} pieces={this.state.deck} drag={() => { }} drop={() => { }} />
+						<Hand
+							player={1}
+							move={
+								this.state.winner === 0 &&
+								this.state.turn === 1 &&
+								this.props.player1==='player'
+							}
+							pieces={this.state.playerOne}
+							drag={this.dragStart}
+							drop={this.dragEnd}
+						/>
+						<Hand
+							player={2}
+							move={
+								this.state.winner === 0 &&
+								this.state.turn === 2 &&
+								this.props.player2 === 'player'
+							}
+							pieces={this.state.playerTwo}
+							drag={this.dragStart}
+							drop={this.dragEnd}
+						/>
+						<Hand
+							player={3}
+							move={false}
+							pieces={this.state.deck}
+							drag={() => { }}
+							drop={() => { }}
+						/>
+						<NextButton onClick={() => this.nextMove()}/>
 						<PassButton pass={this.state.took} onClick={() => this.pass()} />
 					</Layer>
 				</Stage>
