@@ -4,8 +4,12 @@ from .game import Game, InformationSet
 main = Blueprint('main', __name__)
 game = Game()
 
-@main.route('/get_strategy')
-def get_strategy():
+@main.route('/get_action')
+def get_action():
     state = request.get_json()
-    information_set = InformationSet(state['history'], state['hand'])
-    return game.get_strategy(information_set)
+    history, hand = state['history'], state['hand']
+    left, right = state['left'], state['right']
+    action = game.get_action(history, hand, left, right)
+    return jsonify({
+        "action": action,
+    })
