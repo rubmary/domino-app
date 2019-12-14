@@ -2,7 +2,9 @@ import React from 'react';
 import { Rect, Circle, Group, Line } from 'react-konva';
 import { KonvaEventObject } from 'konva/types/Node';
 import {faces} from '../utils';
+
 type Props = {
+    show: boolean,
     x: number,
     y: number,
     points?: Array<number>,
@@ -32,16 +34,25 @@ const Face = (props: FaceProps) => {
     return <>{dots}</>;
 }
 class Piece extends React.Component<Props>{
+
     render(){
         const cx = this.props.vertical ? 25 : 50;
         const cy = this.props.vertical ? 50 : 25;
-        return (
-        <Group 
-            x={this.props.x}
-            y={this.props.y}
-            draggable={this.props.move}
-            onDragStart={this.props.drag} 
-            onDragEnd={(e:KonvaEventObject<DragEvent>) => this.props.drop(e, this.props.x, this.props.y)}>
+
+        const piece = !this.props.show
+        ?
+        <Rect
+            x = {0}
+            y = {0}
+            fill='#ffffe3'
+            width={this.props.vertical?50:100}
+            height={this.props.vertical?100:50}
+            stroke='black'
+            strokeWidth={1.5}
+            cornerRadius={4}
+        >
+        </Rect> :
+        <Group>
             <Rect
                 x = {0}
                 y = {0}
@@ -53,15 +64,15 @@ class Piece extends React.Component<Props>{
                 cornerRadius={4}
             >
             </Rect>
-            <Face 
+            <Face
                 points={this.props.points ? this.props.points[0] : 3}
                 ver={this.props.vertical} 
                 cx={cx - (this.props.vertical ? 0 : 25)}
                 cy={cy - (this.props.vertical ? 25 : 0)}
             />
-            <Face 
-                points={this.props.points ? this.props.points[1] : 3} 
-                ver={this.props.vertical} 
+            <Face
+                points={this.props.points ? this.props.points[1] : 3}
+                ver={this.props.vertical}
                 cx={cx + (this.props.vertical ? 0 : 25)}
                 cy={cy + (this.props.vertical ? 25 : 0)}
             />
@@ -76,7 +87,17 @@ class Piece extends React.Component<Props>{
                 x={this.props.vertical ? 25 : 50}
                 y={this.props.vertical ? 50 : 25}
             />
-        </Group>);    
+        </Group>;
+
+        return (
+        <Group
+            x={this.props.x}
+            y={this.props.y}
+            draggable={this.props.move}
+            onDragStart={this.props.drag}
+            onDragEnd={(e:KonvaEventObject<DragEvent>) => this.props.drop(e, this.props.x, this.props.y)}>
+            {piece}
+        </Group>);
     }
 };
 

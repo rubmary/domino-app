@@ -3,6 +3,7 @@ import Piece from './Piece';
 import { KonvaEventObject } from 'konva/types/Node';
 
 type Props = {
+    show: boolean,
     player: number,
     pieces: Array<{id: number, points: Array<number>}>,
     drag: (id: number) => void,
@@ -34,7 +35,8 @@ class Hand extends React.Component<Props>{
                 y = this.props.player === 1 ? 10 : window.innerHeight - 110;
             }
             return (
-                <Piece 
+                <Piece
+                    show = {this.props.show}
                     x = {x}
                     y = {y}
                     player={this.props.player}
