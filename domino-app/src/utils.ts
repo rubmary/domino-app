@@ -109,12 +109,6 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
         }
     }
     const currentHand = game.player === 1 ? game.handPlayerOne : game.handPlayerTwo;
-
-    if ( action.taken.first !== -1 ) {
-        currentHand.push(action.taken);
-        currentHand.sort(compare);
-    }
-
     if (action.side === "pass") {
         for (let i = 0; i < game.pack.length; i++) {
             if (game.pack[i].first === action.taken.first &&

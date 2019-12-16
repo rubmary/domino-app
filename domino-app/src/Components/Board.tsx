@@ -135,9 +135,19 @@ class Board extends React.Component<Props, State>{
         const playerOne = [...this.state.playerOne];
         const playerTwo = [...this.state.playerTwo];
         const piece = deck.shift()!;
+        const pieceState : DominoPiece = {
+            first: piece.points[0],
+            second: piece.points[1]
+        };
         if (piece) {
-            if (this.state.turn === 1) playerOne.push(piece);
-            else playerTwo.push(piece);
+            if (this.state.turn === 1){
+                playerOne.push(piece);
+                this.gameState.handPlayerOne.push(pieceState);
+            }
+            else{
+                playerTwo.push(piece);
+                this.gameState.handPlayerTwo.push(pieceState);
+            }
         }
         this.pieceTaken = {first: piece.points[0], second: piece.points[1]};
         this.setState({ deck, playerOne, playerTwo, took: true });
@@ -479,7 +489,6 @@ class Board extends React.Component<Props, State>{
             return;
         }
         const {turn} = this.state;
-        const newTurn = turn === 1 ? 2 : 1;
         const playerType = turn === 1 ? this.props.player1 : this.props.player2;
         if (playerType === 'player') {
             alert('Debes realizar una jugada');
@@ -498,6 +507,7 @@ class Board extends React.Component<Props, State>{
 
         if(!canPlay(hand, left, right)) {
             this.pass();
+            logGameState(this.gameState);
             playerOne = [...this.state.playerOne];
             playerTwo = [...this.state.playerTwo];
             hand = turn === 1 ? playerOne : playerTwo;
