@@ -13,9 +13,9 @@ def get_action():
     print(state)
     history, hand = state['history'], state['hand']
     left, right = state['left'], state['right']
-    piece, side = game.get_action(history, hand, left, right)
-    print(piece)
-    print(side)
+    takenPiece = state['takenPiece']
+    piece, side = game.get_action(history, hand, left, right, takenPiece)
+    print("(piece, side) = (" + str(piece) + "," + str(side) + ")")
     return jsonify({
         "piece": piece,
         "side": side

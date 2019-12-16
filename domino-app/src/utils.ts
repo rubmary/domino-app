@@ -52,6 +52,7 @@ export type GameState = {
     pack: Array<DominoPiece>,
     handPlayerOne: Array<DominoPiece>,
     handPlayerTwo: Array<DominoPiece>,
+    takenPiece: DominoPiece,
     player: number,
     maxPoint: number,
     initialHand: number,
@@ -92,7 +93,8 @@ export const initialGameState = (
         initialHand: initialHand,
         orientation: true,
         left: -1,
-        right: -1
+        right: -1,
+        takenPiece: {first: -1, second: -1}
     };
 
     return game;
@@ -108,7 +110,14 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
             action.side = "left";
         }
     }
-    const currentHand = game.player === 1 ? game.handPlayerOne : game.handPlayerTwo;
+
+    const hand = game.player === 1 ? game.handPlayerOne : game.handPlayerTwo;
+
+    if (action.taken.first !== -1) {
+        hand.push(action.taken);
+        hand.sort(compare);
+    }
+
     if (action.side === "pass") {
         for (let i = 0; i < game.pack.length; i++) {
             if (game.pack[i].first === action.taken.first &&
@@ -117,10 +126,10 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
             }
         }
     } else {
-        for (let i = 0; i < currentHand.length; i++) {
-            if (currentHand[i].first === action.placed.first &&
-                currentHand[i].second === action.placed.second) {
-                currentHand.splice(i, 1);
+        for (let i = 0; i < hand.length; i++) {
+            if (hand[i].first === action.placed.first &&
+                hand[i].second === action.placed.second) {
+                hand.splice(i, 1);
             }
         }
         if (game.history.length === 0) {
@@ -138,6 +147,7 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
     }
     game.history.push(action);
     game.player = game.player === 1 ? 2 : 1;
+    game.takenPiece = {first: -1, second: -1};
     return true;
 }
 
@@ -175,6 +185,7 @@ export const logGameState = (game: GameState) => {
     }
     console.log("Pack:      " + pack);
     console.log("(left, right) = (" + game.left + "," + game.right +")");
+    console.log("TakenPiece = "+ stringPiece(game.takenPiece));
     console.log("-------------------------------------------------------------------")
 }
 
@@ -197,11 +208,13 @@ export const fetchStrategy = (game: GameState, doAction : (piece: Array<number>,
         return [piece.first, piece.second]
     });
 
+    const taken_piece = [game.takenPiece.first, game.takenPiece.second];
     const data = JSON.stringify({
       "history": history,
       "hand": hand,
       "left": game.left,
-      "right":  game.right
+      "right":  game.right,
+      "takenPiece": taken_piece
     });
     console.log(data);
     fetch(API + QUERY, {

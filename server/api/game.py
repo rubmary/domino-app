@@ -10,9 +10,10 @@ def piece_mask(piece):
     return mask
 
 class InformationSet:
-    def __init__(self, history, hand):
+    def __init__(self, history, hand, taken_piece):
         self.history = history
         self.hand = hand
+        self.taken_piece = taken_piece
 
     def get_tuple(self):
         n = len(self.history)
@@ -43,7 +44,8 @@ class InformationSet:
         hand = []
         for piece in self.hand:
             hand.append(piece_mask(piece))
-        return tuple([n] + history + [m] + hand)
+        taken_piece = piece_mask(self.taken_piece)
+        return tuple([n] + history + [m] + hand + [taken_piece])
 
 class Game:
     def __init__(self):
@@ -91,8 +93,11 @@ class Game:
             cum_prob += strategy[i]
         return N-1
 
-    def get_actions(self, hand, left, right):
+    def get_actions(self, hand, left, right, taken_piece):
         actions = []
+        if (taken_piece[0] != -1):
+            hand = [taken_piece]
+        print("hand (actions) = " + str(hand))
         for piece in hand:
             if(left == -1):
                 actions.append((piece, 'left'))
@@ -103,11 +108,13 @@ class Game:
                     actions.append((piece, 'right'))
         return actions
 
-    def get_action(self, history, hand, left, right):
-        actions = self.get_actions(hand, left, right)
+    def get_action(self, history, hand, left, right, taken_piece):
+        actions = self.get_actions(hand, left, right, taken_piece)
+        print("hand (action)  = " + str(hand))
+        return actions[0]
         if (len(actions) == 1):
             return actions[0]
-        information_set = InformationSet(history, hand)
+        information_set = InformationSet(history, hand, taken_piece)
         strategy = self.get_strategy(information_set)
         print(strategy)
         action_id = self.get_action_id(strategy)

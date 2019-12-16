@@ -10,7 +10,6 @@ import {
     checkDouble,
     canPlay,
     getPointsSum,
-    DominoPiece,
     Action,
     GameState,
     initialGameState,
@@ -56,7 +55,6 @@ class Board extends React.Component<Props, State>{
     orientation: Array<boolean> = [];
     set: Array<Array<number>> = [];
     gameState: GameState;
-    pieceTaken: DominoPiece = {first: -1, second: -1};
 
     constructor(props : Props) {
         super(props);
@@ -134,22 +132,11 @@ class Board extends React.Component<Props, State>{
         const deck = [...this.state.deck];
         const playerOne = [...this.state.playerOne];
         const playerTwo = [...this.state.playerTwo];
+        const hand = this.state.turn === 1 ? playerOne : playerTwo;
         const piece = deck.shift()!;
-        const pieceState : DominoPiece = {
-            first: piece.points[0],
-            second: piece.points[1]
-        };
-        if (piece) {
-            if (this.state.turn === 1){
-                playerOne.push(piece);
-                this.gameState.handPlayerOne.push(pieceState);
-            }
-            else{
-                playerTwo.push(piece);
-                this.gameState.handPlayerTwo.push(pieceState);
-            }
-        }
-        this.pieceTaken = {first: piece.points[0], second: piece.points[1]};
+
+        hand.push(piece);
+        this.gameState.takenPiece = {first: piece.points[0], second: piece.points[1]};
         this.setState({ deck, playerOne, playerTwo, took: true });
     }
 
@@ -175,12 +162,12 @@ class Board extends React.Component<Props, State>{
         if (!this.state.took && this.state.deck.length > 0) {
             this.takeFromDeck();
         } else {
+            const takenPiece = this.gameState.takenPiece;
             const action : Action = {
                 placed: {first: -1, second: -1},
-                taken: {first: this.pieceTaken.first, second: this.pieceTaken.second},
+                taken: {first: takenPiece.first, second: takenPiece.second},
                 side: "pass"
             };
-            this.pieceTaken = {first: -1, second: -1};
             const orientation = this.gameState.orientation;
             putAction(this.gameState, action, orientation);
             logGameState(this.gameState);
@@ -446,13 +433,13 @@ class Board extends React.Component<Props, State>{
             this.orientation.unshift(false);
         }
 
+        const takenPiece = this.gameState.takenPiece;
         const action : Action = {
             placed: {first: this.set[id][0], second: this.set[id][1]},
-            taken: {first: this.pieceTaken.first, second: this.pieceTaken.second},
+            taken: {first: takenPiece.first, second: takenPiece.second},
             side: right ? "right" : "left"
         };
         putAction(this.gameState, action, orientation);
-        this.pieceTaken = {first: -1, second: -1};
         logGameState(this.gameState);
         this.updatePositions(pieces);
         this.setState({ took: this.state.deck.length === 0 })
