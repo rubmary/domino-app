@@ -15,9 +15,9 @@ import {
     GameState,
     initialGameState,
     putAction,
-    logGameState
+    logGameState,
+    fetchStrategy
 } from '../utils';
-
 
 export type PieceValue = Array<{ id: number, points: Array<number> }>
 
@@ -60,8 +60,8 @@ class Board extends React.Component<Props, State>{
 
     constructor(props : Props) {
         super(props);
-        const maxPoint = 6;
-        const initialHand = 7;
+        const maxPoint = 3;
+        const initialHand = 3;
         const totalPieces = (maxPoint+1)*(maxPoint+2)/2 - 2*initialHand;
 
         for (let i = 0; i <= maxPoint; i++) {
@@ -448,6 +448,31 @@ class Board extends React.Component<Props, State>{
         this.setState({ took: this.state.deck.length === 0 })
     }
 
+    doAction = (piece: Array<number>, side : string) => {
+        const right = side === 'right';
+        let {turn} = this.state;
+        let playerOne = [...this.state.playerOne];
+        let playerTwo = [...this.state.playerTwo];
+        const hand = turn === 1 ? playerOne : playerTwo;
+
+        let index = 0;
+        for (let i = 0; i < hand.length; i++) {
+            if (hand[i].points[0] === piece[0] && hand[i].points[1] === piece[1]) {
+                index = i;
+                break;
+            }
+        }
+        console.log(index);
+        if(this.gameState.history.length === 0){
+            this.setState({ center: hand[index].id })
+        }
+        this.pushPiece(right, hand[index].id);
+        hand.splice(index, 1);
+        let winner = hand.length === 0 ? turn : 0;
+        turn = turn === 1 ? 2 : 1;
+        this.setState({turn, playerTwo, playerOne, winner});
+    }
+
     nextMove() {
         if (this.state.winner !== 0) {
             alert('Juego terminado');
@@ -467,10 +492,7 @@ class Board extends React.Component<Props, State>{
         const right = this.state.right.value;
 
         if (left === -1 && right === -1) {
-            this.setState({ center: hand[0].id })
-            this.pushPiece(false, hand[0].id);
-            hand.splice(0, 1);
-            this.setState({turn: newTurn, playerTwo, playerOne});
+            fetchStrategy(this.gameState, this.doAction);
             return;
         }
 
@@ -481,27 +503,10 @@ class Board extends React.Component<Props, State>{
             hand = turn === 1 ? playerOne : playerTwo;
             if(!canPlay(hand, left, right)) {
                 this.pass();
-                console.log(this.state.took);
                 return;
             }
         }
-        for (let i = 0; i < hand.length; i++) {
-            let piece = hand[i].points;
-            if(piece[0] === left || piece[1] === left) {
-                this.pushPiece(false, hand[i].id);
-                hand.splice(i, 1);
-                let winner = hand.length === 0 ? turn : 0;
-                this.setState({turn: newTurn, playerTwo, playerOne, winner});
-                return;
-            }
-            if(piece[0] === right || piece[1] === right) {
-                this.pushPiece(true, hand[i].id);
-                hand.splice(i, 1);
-                let winner = hand.length === 0 ? turn : 0;
-                this.setState({turn: newTurn, playerTwo, playerOne, winner});
-                return;
-            }
-        }
+        fetchStrategy(this.gameState, this.doAction);
     }
 
     render() {

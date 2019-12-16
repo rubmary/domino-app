@@ -65,8 +65,8 @@ export const initialGameState = (
     playerTwo: PieceValue,
     pack: PieceValue
 ) => {
-    const maxPoint = 6;
-    const initialHand = 7;
+    const maxPoint = 3;
+    const initialHand = 3;
     const totalPieces = (maxPoint + 1) * (maxPoint + 2) / 2 - 2 * initialHand;
     console.log("totalPieces", totalPieces);
     console.log("initialHand", initialHand);
@@ -182,4 +182,40 @@ export const logGameState = (game: GameState) => {
     console.log("Pack:      " + pack);
     console.log("(left, right) = (" + game.left + "," + game.right +")");
     console.log("-------------------------------------------------------------------")
+}
+
+/***************************** STRATEGY *********************************/
+const API : string = 'http://localhost:5000'
+const QUERY : string = '/api/get_action'
+
+export const fetchStrategy = (game: GameState, doAction : (piece: Array<number>, side: string) => void) => {
+    const N = game.history.length;
+    const history = new Array(N).fill(null).map((_, i) => {
+        let action = game.history[i];
+        return {
+            'side': action.side,
+            'taken': [action.taken.first, action.taken.second],
+            'placed': [action.placed.first, action.placed.second]
+        }
+    });
+    const currentHand = game.player === 1 ? game.handPlayerOne : game.handPlayerTwo;
+    const hand = currentHand.map((piece, _) => {
+        return [piece.first, piece.second]
+    });
+
+    const data = JSON.stringify({
+      "history": history,
+      "hand": hand,
+      "left": game.left,
+      "right":  game.right
+    });
+    console.log(data);
+    fetch(API + QUERY, {
+        method: 'POST',
+        body: data,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => response.json())
+      .then((data) => doAction(data['piece'], data['side']))
 }

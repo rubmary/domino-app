@@ -111,4 +111,5 @@ class Game:
         strategy = self.get_strategy(information_set)
         print(strategy)
         action_id = self.get_action_id(strategy)
-        return actions[action_id]
+        action = actions[action_id]
+        return action[0], action[1]
