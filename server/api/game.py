@@ -1,4 +1,5 @@
 from flask import jsonify
+from random import random
 
 def piece_mask(piece):
     # Los ultimos tres bytes representan la primera cara
@@ -78,6 +79,37 @@ class Game:
         inf_set_tuple = information_set.get_tuple()
         id = self.I[inf_set_tuple]
         strategy = self.strategy[id]
-        return jsonify({
-            'strategy': strategy
-        })
+        return strategy
+
+    def get_action_id(self, strategy):
+        x = random()
+        N = len(strategy)
+        cum_prob = 0
+        for i in range(N):
+            if(x < cum_prob+strategy[i]):
+                return i
+            cum_prob += strategy[i]
+        return N-1
+
+    def get_actions(self, hand, left, right):
+        actions = []
+        for piece in hand:
+            if(left == -1):
+                actions.append((piece, 'left'))
+            else:
+                if (left == piece[0] or left == piece[1]):
+                    actions.append((piece, 'left'))
+                if ((right == piece[0] or right == piece[1]) and left != right):
+                    actions.append((piece, 'right'))
+        return actions
+
+    def get_action(self, history, hand, left, right):
+        actions = self.get_actions(hand, left, right)
+        if (len(actions) == 1):
+            return actions[0]
+        information_set = InformationSet(history, hand)
+        strategy = self.get_strategy(information_set)
+        print(strategy)
+        action_id = self.get_action_id(strategy)
+        action = actions[action_id]
+        return action[0], action[1]
