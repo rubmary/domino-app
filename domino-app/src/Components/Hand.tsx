@@ -16,7 +16,8 @@ class Hand extends React.Component<Props>{
     shouldComponentUpdate(nextProps:Props){
         return (
             (this.props.pieces.length !== nextProps.pieces.length) ||
-            (this.props.move !== nextProps.move)
+            (this.props.move !== nextProps.move) ||
+            (this.props.show !== nextProps.show)
         );
     }
     render(){
