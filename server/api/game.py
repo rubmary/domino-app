@@ -44,7 +44,11 @@ class InformationSet:
         hand = []
         for piece in self.hand:
             hand.append(piece_mask(piece))
-        taken_piece = piece_mask(self.taken_piece)
+        taken_piece = 0
+        if (self.taken_piece[0] != -1):
+            # El septimo bit indica si se tomara ficha o no
+            taken_piece = piece_mask(self.taken_piece)
+            taken_piece |= (1<<6);
         return tuple([n] + history + [m] + hand + [taken_piece])
 
 class Game:
@@ -97,7 +101,6 @@ class Game:
         actions = []
         if (taken_piece[0] != -1):
             hand = [taken_piece]
-        print("hand (actions) = " + str(hand))
         for piece in hand:
             if(left == -1):
                 actions.append((piece, 'left'))
@@ -110,8 +113,6 @@ class Game:
 
     def get_action(self, history, hand, left, right, taken_piece):
         actions = self.get_actions(hand, left, right, taken_piece)
-        print("hand (action)  = " + str(hand))
-        return actions[0]
         if (len(actions) == 1):
             return actions[0]
         information_set = InformationSet(history, hand, taken_piece)

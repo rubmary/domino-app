@@ -95,7 +95,6 @@ class Board extends React.Component<Props, State>{
         }
         this.gameState = initialGameState(this.state.playerOne, this.state.playerTwo, this.state.deck);
         logGameState(this.gameState);
-        console.log(this.props);
     }
 
     cx = window.innerWidth / 2;
@@ -459,7 +458,6 @@ class Board extends React.Component<Props, State>{
                 break;
             }
         }
-        console.log(index);
         if(this.gameState.history.length === 0){
             this.setState({ center: hand[index].id })
         }

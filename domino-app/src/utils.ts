@@ -69,8 +69,8 @@ export const initialGameState = (
     const maxPoint = 3;
     const initialHand = 3;
     const totalPieces = (maxPoint + 1) * (maxPoint + 2) / 2 - 2 * initialHand;
-    console.log("totalPieces", totalPieces);
-    console.log("initialHand", initialHand);
+    console.log("TotalPieces", totalPieces);
+    console.log("InitialHand", initialHand);
     let handPlayerOne = new Array(initialHand).fill(null).map((_, i: number) => {
         return { first: playerOne[i].points[0], second: playerOne[i].points[1] }
     })
@@ -216,7 +216,6 @@ export const fetchStrategy = (game: GameState, doAction : (piece: Array<number>,
       "right":  game.right,
       "takenPiece": taken_piece
     });
-    console.log(data);
     fetch(API + QUERY, {
         method: 'POST',
         body: data,
