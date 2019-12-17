@@ -505,7 +505,7 @@ class Board extends React.Component<Props, State>{
     }
 
     render() {
-        const { pieces } = this.state;
+        const { pieces, winner } = this.state;
         const draw = pieces.map((piece: { id: number, vertical: boolean }, i: number) => {
             return (
                 <Piece
@@ -532,7 +532,7 @@ class Board extends React.Component<Props, State>{
         } else {
             message = 'Juego terminado'
             messagePoints = 'Gana ' + this.state.winner + ' con ' +
-                getPointsSum(this.state.turn === 1 ? this.state.playerOne : this.state.playerTwo) + ' puntos'
+                getPointsSum(this.state.winner === 1 ? this.state.playerTwo : this.state.playerOne) + ' puntos'
         }
         const {player1, player2} = this.props;
         return (
@@ -546,7 +546,7 @@ class Board extends React.Component<Props, State>{
                     <Layer>
                         {draw}
                         <Hand
-                            show={player2==='pc'}
+                            show={player2==='pc' || winner !== 0}
                             player={1}
                             move={
                                 this.state.winner === 0 &&
@@ -558,7 +558,7 @@ class Board extends React.Component<Props, State>{
                             drop={this.dragEnd}
                         />
                         <Hand
-                            show={player1==='pc'}
+                            show={player1==='pc' || winner !== 0}
                             player={2}
                             move={
                                 this.state.winner === 0 &&
@@ -570,7 +570,7 @@ class Board extends React.Component<Props, State>{
                             drop={this.dragEnd}
                         />
                         <Hand
-                            show={player1==='pc' && player2==='pc'}
+                            show={(player1==='pc' && player2==='pc') || winner !== 0}
                             player={3}
                             move={false}
                             pieces={this.state.deck}
