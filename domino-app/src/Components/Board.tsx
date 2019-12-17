@@ -5,6 +5,7 @@ import Piece from './Piece';
 import Hand from './Hand';
 import PassButton from './PassButton';
 import NextButton from './NextButton';
+import Alert from './Alert';
 
 import {
     checkDouble,
@@ -42,6 +43,8 @@ type State = {
 
     winner: number,
     took: boolean,
+    showAlert: boolean,
+    alertMessage: string
 };
 
 type Props = {
@@ -92,6 +95,8 @@ class Board extends React.Component<Props, State>{
             turn: 1,
             took: false,
             winner: 0,
+            showAlert: false,
+            alertMessage: ''
         }
         this.gameState = initialGameState(this.state.playerOne, this.state.playerTwo, this.state.deck);
         logGameState(this.gameState);
@@ -139,23 +144,35 @@ class Board extends React.Component<Props, State>{
         this.setState({ deck, playerOne, playerTwo, took: true });
     }
 
+    hideAlert() {
+        this.setState({
+            showAlert: false
+        });
+    }
+
+    alert(message : string) {
+        this.setState({
+            showAlert: true,
+            alertMessage: message
+        });
+    }
     pass() {
         if (this.state.winner !== 0) {
-            alert('Juego terminado');
+            this.alert('Juego terminado');
             return;
         }
         if (this.state.pieces.length === 0) {
-            alert('Existe al menos una jugada posible');
+            this.alert('Existe al menos una jugada posible');
             return;
         }
         const playerOne = [...this.state.playerOne];
         const playerTwo = [...this.state.playerTwo];
         if (this.state.turn === 1 && canPlay(playerOne, this.state.left.value, this.state.right.value)) {
-            alert('Existe al menos una jugada posible');
+            this.alert('Existe al menos una jugada posible');
             return;
         }
         if (this.state.turn === 2 && canPlay(playerTwo, this.state.left.value, this.state.right.value)) {
-            alert('Existe al menos una jugada posible');
+            this.alert('Existe al menos una jugada posible');
             return;
         }
         if (!this.state.took && this.state.deck.length > 0) {
@@ -473,13 +490,13 @@ class Board extends React.Component<Props, State>{
 
     nextMove() {
         if (this.state.winner !== 0) {
-            alert('Juego terminado');
+            this.alert('Juego terminado');
             return;
         }
         const {turn} = this.state;
         const playerType = turn === 1 ? this.props.player1 : this.props.player2;
         if (playerType === 'player') {
-            alert('Debes realizar una jugada');
+            this.alert('Debes realizar una jugada');
             return;
         }
         let playerOne = [...this.state.playerOne];
@@ -540,6 +557,11 @@ class Board extends React.Component<Props, State>{
         const {player1, player2} = this.props;
         return (
             <>
+                <Alert
+                    message={this.state.alertMessage}
+                    show={this.state.showAlert}
+                    hideAlert={() => this.hideAlert()}
+                />
                 <h1 className='gameStatus'>
                     {message}
                     <br>{}</br>
