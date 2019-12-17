@@ -445,7 +445,10 @@ class Board extends React.Component<Props, State>{
     }
 
     doAction = (piece: Array<number>, side : string) => {
-        const right = side === 'right';
+        let right = side === 'right';
+        if (!this.gameState.orientation) {
+            right = !right;
+        }
         let {turn} = this.state;
         let playerOne = [...this.state.playerOne];
         let playerTwo = [...this.state.playerTwo];
