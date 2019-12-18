@@ -78,7 +78,7 @@ class Game:
 
     def read_strategy(self, file):
         line = file.readline().split()
-        strategy = map(float, line[1:])
+        strategy = [*map(float, line[1:])]
         return strategy
 
     def get_strategy(self, information_set):
