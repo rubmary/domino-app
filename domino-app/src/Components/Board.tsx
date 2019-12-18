@@ -6,7 +6,6 @@ import Hand from './Hand';
 import PassButton from './PassButton';
 import NextButton from './NextButton';
 import Alert from './Alert';
-
 import {
     checkDouble,
     canPlay,
@@ -18,6 +17,9 @@ import {
     logGameState,
     fetchStrategy
 } from '../utils';
+import {
+    Button
+} from 'react-bootstrap';
 
 export type PieceValue = Array<{ id: number, points: Array<number> }>
 
@@ -132,7 +134,7 @@ class Board extends React.Component<Props, State>{
         }
     }
 
-    takeFromDeck() {
+    takeFromDeck(callback? : () => void) {
         const deck = [...this.state.deck];
         const playerOne = [...this.state.playerOne];
         const playerTwo = [...this.state.playerTwo];
@@ -141,7 +143,7 @@ class Board extends React.Component<Props, State>{
 
         hand.push(piece);
         this.gameState.takenPiece = {first: piece.points[0], second: piece.points[1]};
-        this.setState({ deck, playerOne, playerTwo, took: true });
+        return this.setState({ deck, playerOne, playerTwo, took: true }, callback);
     }
 
     hideAlert() {
@@ -156,7 +158,8 @@ class Board extends React.Component<Props, State>{
             alertMessage: message
         });
     }
-    pass() {
+    pass(callback? : () => void) {
+        console.log("In pass...");
         if (this.state.winner !== 0) {
             this.alert('Juego terminado');
             return;
@@ -176,8 +179,9 @@ class Board extends React.Component<Props, State>{
             return;
         }
         if (!this.state.took && this.state.deck.length > 0) {
-            this.takeFromDeck();
+            return this.takeFromDeck(callback);
         } else {
+            console.log('passing...');
             const takenPiece = this.gameState.takenPiece;
             const action : Action = {
                 placed: {first: -1, second: -1},
@@ -511,15 +515,23 @@ class Board extends React.Component<Props, State>{
         }
 
         if(!canPlay(hand, left, right)) {
-            this.pass();
-            logGameState(this.gameState);
-            playerOne = [...this.state.playerOne];
-            playerTwo = [...this.state.playerTwo];
-            hand = turn === 1 ? playerOne : playerTwo;
-            if(!canPlay(hand, left, right)) {
-                this.pass();
-                return;
+            const callback = () => {
+                const f = () => {
+                    logGameState(this.gameState);
+                    playerOne = [...this.state.playerOne];
+                    playerTwo = [...this.state.playerTwo];
+                    hand = turn === 1 ? playerOne : playerTwo;
+                    if(!canPlay(hand, left, right)) {
+                        console.log('Passing 2');
+                        this.pass();
+                        return;
+                    }
+                    fetchStrategy(this.gameState, this.doAction);
+                }
+                setTimeout(f, 500);
             }
+            this.pass(callback);
+            return;
         }
         fetchStrategy(this.gameState, this.doAction);
     }
@@ -567,7 +579,7 @@ class Board extends React.Component<Props, State>{
                     <br>{}</br>
                     {messagePoints}
                 </h1>
-                <Stage width={window.innerWidth} height={window.innerHeight}>
+                <Stage width={window.innerWidth} height={window.innerHeight - 70}>
                     <Layer>
                         {draw}
                         <Hand
@@ -602,10 +614,17 @@ class Board extends React.Component<Props, State>{
                             drag={() => { }}
                             drop={() => { }}
                         />
-                        <NextButton onClick={() => this.nextMove()}/>
                         <PassButton pass={this.state.took} onClick={() => this.pass()} />
                     </Layer>
                 </Stage>
+
+                <div className='buttons'>
+                    <NextButton onClick={() => this.nextMove()}/>
+                    {' '}
+                    <Button variant="secondary" size="lg">
+                        Large button
+                    </Button>
+                </div>
             </>
         )
     }

@@ -23,5 +23,11 @@
 
 .gameStatus {
   float: right;
-  margin-right: 20px;
+  margin-right: 40px;
+  margin-top: 20px;
+}
+
+.buttons {
+  float: right;
+  margin-right: 40px;
 }
