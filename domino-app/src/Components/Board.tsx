@@ -17,9 +17,6 @@ import {
     logGameState,
     fetchStrategy
 } from '../utils';
-import {
-    Button
-} from 'react-bootstrap';
 
 export type PieceValue = Array<{ id: number, points: Array<number> }>
 
@@ -159,7 +156,6 @@ class Board extends React.Component<Props, State>{
         });
     }
     pass(callback? : () => void) {
-        console.log("In pass...");
         if (this.state.winner !== 0) {
             this.alert('Juego terminado');
             return;
@@ -536,6 +532,16 @@ class Board extends React.Component<Props, State>{
         fetchStrategy(this.gameState, this.doAction);
     }
 
+    buttons() {
+        const {player1, player2} = this.props;
+        const next =  <NextButton onClick={() => this.nextMove()}/>;
+        const pass = <PassButton pass={this.state.took} onClick={() => this.pass()} />;
+        let buttons = <>{next}{' '}{pass}</>;
+        if (player1 === 'pc' && player2 === 'pc'){
+            buttons = next;
+        }
+        return <div className='buttons'>{buttons}</div>;
+    }
     render() {
         const { pieces, winner } = this.state;
         const draw = pieces.map((piece: { id: number, vertical: boolean }, i: number) => {
@@ -614,17 +620,9 @@ class Board extends React.Component<Props, State>{
                             drag={() => { }}
                             drop={() => { }}
                         />
-                        <PassButton pass={this.state.took} onClick={() => this.pass()} />
                     </Layer>
                 </Stage>
-
-                <div className='buttons'>
-                    <NextButton onClick={() => this.nextMove()}/>
-                    {' '}
-                    <Button variant="secondary" size="lg">
-                        Large button
-                    </Button>
-                </div>
+                {this.buttons()}
             </>
         )
     }
