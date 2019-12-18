@@ -1,18 +1,48 @@
 import React from 'react';
 import { Button } from 'react-bootstrap';
+import NewGameAlert from './NewGameAlert';
 
-class MainButton extends React.Component {
+type State = {
+    showAlert: boolean
+};
+
+class MainButton extends React.Component<{}, State>{
+    constructor(props : {}) {
+        super(props);
+        this.state = {
+            showAlert: false
+        };
+    }
+    onClick = () => {
+        this.setState({showAlert: true});
+    }
+    hideAlert = () => {
+        this.setState({showAlert: false});
+    }
+    onClickAlert = () => {
+        window.location.reload();
+        this.hideAlert();
+    }
     render() {
+        const message = '¿Estás seguro que deseas reiniciar el juego?';
         return (
+            <>
+            <NewGameAlert
+                message={message}
+                show={this.state.showAlert}
+                hideAlert={() => {this.hideAlert()}}
+                onClick={() => {this.onClickAlert()}}
+            />
             <div className='mainButton'> 
                 <Button
-                    onClick={() => {window.location.reload()}}
+                    onClick={() => {this.onClick()}}
                     variant='secondary'
                     size='lg'
                 >
                 Nuevo Juego
                 </Button>
             </div>
+            </>
         );
     }
 };

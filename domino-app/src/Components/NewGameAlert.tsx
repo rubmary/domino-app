@@ -7,10 +7,11 @@ import {
 type Props = {
     message : string,
     show: boolean
-    hideAlert : () => void
+    hideAlert : () => void,
+    onClick: () => void
 };
 
-class Alert extends React.Component<Props> {
+class NewGameAlert extends React.Component<Props> {
 
     shouldComponentUpdate(nextProps:Props){
         return this.props.show !== nextProps.show;
@@ -26,8 +27,13 @@ class Alert extends React.Component<Props> {
             <Modal.Footer>
                 <Button
                     variant="primary"
+                    onClick={() => {this.props.onClick()}}
+                > SÍ
+                </Button>{' '}
+                <Button
+                    variant="secondary"
                     onClick={() => {this.props.hideAlert()}}
-                > OK
+                > NO
                 </Button>
             </Modal.Footer>
             </Modal>
@@ -35,4 +41,4 @@ class Alert extends React.Component<Props> {
     }
 }
 
-export default Alert;
+export default NewGameAlert;
