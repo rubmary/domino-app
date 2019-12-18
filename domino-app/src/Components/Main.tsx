@@ -9,7 +9,6 @@ type State = {
 };
 
 class Main extends React.Component<{}, State> {
-	
 	constructor(props : {}) {
 		super(props);
 		this.state = {
@@ -34,7 +33,7 @@ class Main extends React.Component<{}, State> {
 				player2={this.state.player2}
 			/> :
 			<OptionsWindow showBoard={this.showBoard}/>;
-		return (component);
+		return component;
 	}
 }
 

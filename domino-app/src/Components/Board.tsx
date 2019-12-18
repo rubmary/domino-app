@@ -5,8 +5,8 @@ import Piece from './Piece';
 import Hand from './Hand';
 import PassButton from './PassButton';
 import NextButton from './NextButton';
+import NewGameButton from './NewGameButton';
 import Alert from './Alert';
-
 import {
     checkDouble,
     canPlay,
@@ -44,7 +44,9 @@ type State = {
     winner: number,
     took: boolean,
     showAlert: boolean,
-    alertMessage: string
+    alertMessage: string,
+    disableNext: boolean,
+    disablePass: boolean
 };
 
 type Props = {
@@ -96,7 +98,9 @@ class Board extends React.Component<Props, State>{
             took: false,
             winner: 0,
             showAlert: false,
-            alertMessage: ''
+            alertMessage: '',
+            disableNext: false,
+            disablePass: false
         }
         this.gameState = initialGameState(this.state.playerOne, this.state.playerTwo, this.state.deck);
         logGameState(this.gameState);
@@ -132,7 +136,7 @@ class Board extends React.Component<Props, State>{
         }
     }
 
-    takeFromDeck() {
+    takeFromDeck(callback? : () => void) {
         const deck = [...this.state.deck];
         const playerOne = [...this.state.playerOne];
         const playerTwo = [...this.state.playerTwo];
@@ -141,7 +145,7 @@ class Board extends React.Component<Props, State>{
 
         hand.push(piece);
         this.gameState.takenPiece = {first: piece.points[0], second: piece.points[1]};
-        this.setState({ deck, playerOne, playerTwo, took: true });
+        return this.setState({ deck, playerOne, playerTwo, took: true }, callback);
     }
 
     hideAlert() {
@@ -156,7 +160,7 @@ class Board extends React.Component<Props, State>{
             alertMessage: message
         });
     }
-    pass() {
+    pass(callback? : () => void) {
         if (this.state.winner !== 0) {
             this.alert('Juego terminado');
             return;
@@ -176,8 +180,9 @@ class Board extends React.Component<Props, State>{
             return;
         }
         if (!this.state.took && this.state.deck.length > 0) {
-            this.takeFromDeck();
+            return this.takeFromDeck(callback);
         } else {
+            console.log('passing...');
             const takenPiece = this.gameState.takenPiece;
             const action : Action = {
                 placed: {first: -1, second: -1},
@@ -499,31 +504,64 @@ class Board extends React.Component<Props, State>{
             this.alert('Debes realizar una jugada');
             return;
         }
+
         let playerOne = [...this.state.playerOne];
         let playerTwo = [...this.state.playerTwo];
         let hand = turn === 1 ? playerOne : playerTwo;
         const left = this.state.left.value;
         const right = this.state.right.value;
-
         if (left === -1 && right === -1) {
             fetchStrategy(this.gameState, this.doAction);
             return;
         }
-
         if(!canPlay(hand, left, right)) {
-            this.pass();
-            logGameState(this.gameState);
-            playerOne = [...this.state.playerOne];
-            playerTwo = [...this.state.playerTwo];
-            hand = turn === 1 ? playerOne : playerTwo;
-            if(!canPlay(hand, left, right)) {
-                this.pass();
-                return;
+            const callback = () => {
+                const f = () => {
+                    logGameState(this.gameState);
+                    playerOne = [...this.state.playerOne];
+                    playerTwo = [...this.state.playerTwo];
+                    hand = turn === 1 ? playerOne : playerTwo;
+                    console.log("Desactivar disabled");
+                    this.setState({disableNext: false});
+                    if(!canPlay(hand, left, right)) {
+                        this.pass();
+                        return;
+                    }
+                    fetchStrategy(this.gameState, this.doAction);
+                }
+                setTimeout(f, 500);
             }
+            this.setState({disableNext: true}, () => this.pass(callback));
+            return;
         }
         fetchStrategy(this.gameState, this.doAction);
     }
 
+    buttons() {
+        const {player1, player2} = this.props;
+        const currentPlayer = this.state.turn === 1 ? player1 : player2;
+        const next =  <NextButton
+            onClick={() => this.nextMove()}
+            disabled={
+                currentPlayer==='player' ||
+                this.state.disableNext ||
+                this.state.winner !== 0
+            }
+        />;
+        const pass = <PassButton
+            pass={this.state.took}
+            onClick={() => this.pass()}
+            disabled={
+                currentPlayer==='pc' ||
+                this.state.winner !== 0
+            }
+        />;
+        let buttons = <>{next}{' '}{pass}</>;
+        if (player1 === 'pc' && player2 === 'pc'){
+            buttons = next;
+        }
+        return <div className='buttons'>{buttons}</div>;
+    }
     render() {
         const { pieces, winner } = this.state;
         const draw = pieces.map((piece: { id: number, vertical: boolean }, i: number) => {
@@ -567,7 +605,7 @@ class Board extends React.Component<Props, State>{
                     <br>{}</br>
                     {messagePoints}
                 </h1>
-                <Stage width={window.innerWidth} height={window.innerHeight}>
+                <Stage width={window.innerWidth} height={window.innerHeight - 70}>
                     <Layer>
                         {draw}
                         <Hand
@@ -602,10 +640,10 @@ class Board extends React.Component<Props, State>{
                             drag={() => { }}
                             drop={() => { }}
                         />
-                        <NextButton onClick={() => this.nextMove()}/>
-                        <PassButton pass={this.state.took} onClick={() => this.pass()} />
                     </Layer>
                 </Stage>
+                <NewGameButton/>
+                {this.buttons()}
             </>
         )
     }
