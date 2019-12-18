@@ -5,10 +5,9 @@ from flask_cors import cross_origin
 
 main = Blueprint('main', __name__)
 game = Game()
-statistics = Statistics("test")
+statistics = Statistics("statistics/Domino_3_3.json")
 
 @main.route('/api/get_action', methods=['POST'])
-@cross_origin()
 def get_action():
     state = request.get_json()
     print("Printing state:")
@@ -25,11 +24,7 @@ def get_action():
 
 @main.route('/api/get_statistics', methods=['GET'])
 def get_statistics():
-    player1, player2 = statistics.get_statistics()
-    return jsonify({
-        "player1": player1,
-        "player2": player2
-    })
+    return jsonify(statistics.get_statistics())
 
 @main.route('/api/add_result', methods=['POST'])
 def add_result():
