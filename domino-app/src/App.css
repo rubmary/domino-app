@@ -27,6 +27,11 @@
   margin-top: 20px;
 }
 
+.mainButton {
+  float: left;
+  margin-left: 30px;
+}
+
 .buttons {
   float: right;
   margin-right: 40px;

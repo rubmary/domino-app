@@ -5,6 +5,7 @@ import Piece from './Piece';
 import Hand from './Hand';
 import PassButton from './PassButton';
 import NextButton from './NextButton';
+import MainButton from './MainButton';
 import Alert from './Alert';
 import {
     checkDouble,
@@ -641,6 +642,7 @@ class Board extends React.Component<Props, State>{
                         />
                     </Layer>
                 </Stage>
+                <MainButton/>
                 {this.buttons()}
             </>
         )
