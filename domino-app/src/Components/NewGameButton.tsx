@@ -6,7 +6,7 @@ type State = {
     showAlert: boolean
 };
 
-class MainButton extends React.Component<{}, State>{
+class NewGameButton extends React.Component<{}, State>{
     constructor(props : {}) {
         super(props);
         this.state = {
@@ -33,7 +33,7 @@ class MainButton extends React.Component<{}, State>{
                 hideAlert={() => {this.hideAlert()}}
                 onClick={() => {this.onClickAlert()}}
             />
-            <div className='mainButton'> 
+            <div className='newGameButton'> 
                 <Button
                     onClick={() => {this.onClick()}}
                     variant='secondary'
@@ -47,4 +47,4 @@ class MainButton extends React.Component<{}, State>{
     }
 };
 
-export default MainButton;
+export default NewGameButton;

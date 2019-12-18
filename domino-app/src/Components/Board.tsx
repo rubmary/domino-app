@@ -5,7 +5,7 @@ import Piece from './Piece';
 import Hand from './Hand';
 import PassButton from './PassButton';
 import NextButton from './NextButton';
-import MainButton from './MainButton';
+import NewGameButton from './NewGameButton';
 import Alert from './Alert';
 import {
     checkDouble,
@@ -642,7 +642,7 @@ class Board extends React.Component<Props, State>{
                         />
                     </Layer>
                 </Stage>
-                <MainButton/>
+                <NewGameButton/>
                 {this.buttons()}
             </>
         )
