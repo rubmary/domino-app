@@ -14,7 +14,7 @@ class NextButton extends React.Component<Props> {
                 variant='primary'
                 size='lg'
                 disabled={this.props.disabled}
-            > Sigiente Jugada
+            > Siguiente Jugada
             </Button>
         );
     }

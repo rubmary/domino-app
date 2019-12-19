@@ -5,7 +5,7 @@ import Piece from './Piece';
 import Hand from './Hand';
 import PassButton from './PassButton';
 import NextButton from './NextButton';
-import NewGameButton from './NewGameButton';
+import OptionsDropdown from './OptionsDropdown';
 import Alert from './Alert';
 import {
     checkDouble,
@@ -16,7 +16,8 @@ import {
     initialGameState,
     putAction,
     logGameState,
-    fetchStrategy
+    fetchStrategy,
+    fetchAddResult
 } from '../utils';
 
 export type PieceValue = Array<{ id: number, points: Array<number> }>
@@ -109,6 +110,18 @@ class Board extends React.Component<Props, State>{
     cx = window.innerWidth / 2;
     cy = window.innerHeight / 2;
 
+    addResult() {
+        const {player1, player2} = this.props;
+        const {playerOne, playerTwo, winner} = this.state;
+        let utility = 0;
+        if (winner === 1) {
+            utility = getPointsSum(playerTwo);
+        }else if (winner === 2) {
+            utility = -getPointsSum(playerOne);
+        }
+        fetchAddResult(player1 === 'pc', player2 === 'pc', utility);
+    }
+
     componentDidUpdate(prevProps: {}, prevState: State) {
         if (prevState.turn !== this.state.turn && this.state.winner === 0) {
             if (this.state.deck.length === 0 &&
@@ -117,8 +130,10 @@ class Board extends React.Component<Props, State>{
                 const p1 = getPointsSum(this.state.playerOne), p2 = getPointsSum(this.state.playerTwo);
                 if (p1 < p2) this.setState({ winner: 1 });
                 else if (p1 > p2) this.setState({ winner: 2 });
-                else this.setState({ winner: 3 });
+                else this.setState({ winner: 3 }, () => {this.addResult()});
             }
+        } else if (this.state.winner !== 0) {
+            this.addResult();
         }
     }
 
@@ -182,7 +197,6 @@ class Board extends React.Component<Props, State>{
         if (!this.state.took && this.state.deck.length > 0) {
             return this.takeFromDeck(callback);
         } else {
-            console.log('passing...');
             const takenPiece = this.gameState.takenPiece;
             const action : Action = {
                 placed: {first: -1, second: -1},
@@ -192,7 +206,11 @@ class Board extends React.Component<Props, State>{
             const orientation = this.gameState.orientation;
             putAction(this.gameState, action, orientation);
             logGameState(this.gameState);
-            this.setState({ turn: this.state.turn === 1 ? 2 : 1, took: this.state.deck.length === 0 });
+            this.setState({
+                turn: this.state.turn === 1 ? 2 : 1,
+                took: this.state.deck.length === 0,
+                disableNext: false
+            });
         }
     }
 
@@ -521,7 +539,6 @@ class Board extends React.Component<Props, State>{
                     playerOne = [...this.state.playerOne];
                     playerTwo = [...this.state.playerTwo];
                     hand = turn === 1 ? playerOne : playerTwo;
-                    console.log("Desactivar disabled");
                     this.setState({disableNext: false});
                     if(!canPlay(hand, left, right)) {
                         this.pass();
@@ -642,7 +659,7 @@ class Board extends React.Component<Props, State>{
                         />
                     </Layer>
                 </Stage>
-                <NewGameButton/>
+                <OptionsDropdown/>
                 {this.buttons()}
             </>
         )

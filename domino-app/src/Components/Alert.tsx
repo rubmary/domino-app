@@ -5,8 +5,9 @@ import {
 } from 'react-bootstrap';
 
 type Props = {
-    message : string,
-    show: boolean
+    title? : string,
+    message? : string,
+    show: boolean,
     hideAlert : () => void
 };
 
@@ -17,12 +18,14 @@ class Alert extends React.Component<Props> {
     }
 
     render() {
+        const title = this.props.title ? this.props.title : 'Advertencia';
+        const message = this.props.message ? this.props.message : this.props.children;
         return ( 
             <Modal show={this.props.show} onHide={() => {this.props.hideAlert()}}>
             <Modal.Header closeButton> 
-                <Modal.Title>Advertencia</Modal.Title>
+                <Modal.Title>{title}</Modal.Title>
             </Modal.Header>
-            <Modal.Body>{this.props.message}</Modal.Body>
+            <Modal.Body>{message}</Modal.Body>
             <Modal.Footer>
                 <Button
                     variant="primary"
