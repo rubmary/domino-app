@@ -5,20 +5,38 @@ import {
     Table
 } from 'react-bootstrap';
 import Alert from './Alert';
+import {
+    Statistic,
+    fetchGetStatistics
+} from '../utils';
 
 type State = {
-    showAlert: boolean
+    showAlert: boolean,
+    player1: Statistic,
+    player2: Statistic
 };
 
 class Statistics extends React.Component<{}, State>{
     constructor(props : {}) {
         super(props);
         this.state = {
-            showAlert: false
+            showAlert: false,
+            player1: {
+                average: 0,
+                sum: 0,
+                games: 0
+            },
+            player2: {
+                average: 0,
+                sum: 0,
+                games: 0
+            }
         };
     }
     onClick = () => {
-        this.setState({showAlert: true});
+        fetchGetStatistics((player1: Statistic, player2: Statistic) => {
+            this.setState({showAlert: true, player1, player2});
+        })
     }
     hideAlert = () => {
         this.setState({showAlert: false});
@@ -27,24 +45,24 @@ class Statistics extends React.Component<{}, State>{
         this.hideAlert();
     }
 
-    card = (player: string) =>{
+    card = (player: string, statistic: Statistic) =>{
         return (
             <Card >
-                <Card.Header>Player {player}</Card.Header>
+                <Card.Header>Jugador {player}</Card.Header>
                 <Card.Body>
                     <Table borderless size='sm'>
                         <tbody>
                             <tr>
                                 <td> Ganancia Promedio </td>
-                                <td> 0 </td>
+                                <td>{statistic.average.toFixed(4)}</td>
                             </tr>
                             <tr>
                                 <td> Suma Total </td>
-                                <td> 0 </td>
+                                <td>{statistic.sum}</td>
                             </tr>
                             <tr>
                                 <td> Número de Juegos </td>
-                                <td> 0 </td>
+                                <td>{statistic.games}</td>
                             </tr>
                         </tbody>
                     </Table>
@@ -52,12 +70,13 @@ class Statistics extends React.Component<{}, State>{
             </Card>
         );
     }
-    message = () => {
+
+    body = (player1: Statistic, player2: Statistic) => {
         return (
             <>
-                {this.card('1')}
+                {this.card('1', player1)}
                 <br />
-                {this.card('2')}
+                {this.card('2', player2)}
             </>
         );
     }
@@ -68,7 +87,7 @@ class Statistics extends React.Component<{}, State>{
                     title={'Estadísticas'}
                     show={this.state.showAlert}
                     hideAlert={() => {this.hideAlert()}}
-                >{this.message()}
+                >{this.body(this.state.player1, this.state.player2)}
                 </Alert>
                 <Dropdown.Item onClick={() => {this.onClick()}}>
                     Estadísticas
