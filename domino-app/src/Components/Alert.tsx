@@ -7,7 +7,8 @@ import {
 type Props = {
     message : string,
     show: boolean
-    hideAlert : () => void
+    hideAlert : () => void,
+    title? : string
 };
 
 class Alert extends React.Component<Props> {
@@ -17,10 +18,11 @@ class Alert extends React.Component<Props> {
     }
 
     render() {
+        const title = this.props.title ? this.props.title : 'Advertencia';
         return ( 
             <Modal show={this.props.show} onHide={() => {this.props.hideAlert()}}>
             <Modal.Header closeButton> 
-                <Modal.Title>Advertencia</Modal.Title>
+                <Modal.Title>{title}</Modal.Title>
             </Modal.Header>
             <Modal.Body>{this.props.message}</Modal.Body>
             <Modal.Footer>
