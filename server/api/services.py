@@ -31,6 +31,7 @@ def add_result():
     state = request.get_json()
     p1, p2, u = state['player1'], state['player2'], state['utility'],
     result = statistics.add_result(p1, p2, u)
+    print("Add new result:", p1, p2, u)
     return jsonify({
         "result": result
     })

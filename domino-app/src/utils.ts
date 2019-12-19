@@ -116,16 +116,16 @@ export const putAction = (game: GameState, action: Action, orientation: boolean)
     if (action.taken.first !== -1) {
         hand.push(action.taken);
         hand.sort(compare);
-    }
-
-    if (action.side === "pass") {
         for (let i = 0; i < game.pack.length; i++) {
             if (game.pack[i].first === action.taken.first &&
                 game.pack[i].second === action.taken.second) {
                 game.pack.splice(i, 1);
+                break;
             }
         }
-    } else {
+    }
+
+    if (action.side !== "pass") {
         for (let i = 0; i < hand.length; i++) {
             if (hand[i].first === action.placed.first &&
                 hand[i].second === action.placed.second) {
@@ -242,4 +242,20 @@ export const fetchGetStatistics = (callback : (p1: Statistic, p2: Statistic) => 
     fetch(API + QUERY)
         .then(response => response.json())
         .then((data) => callback(data['player1'], data['player2']));
+}
+
+export const fetchAddResult = (player1 : boolean, player2 : boolean, utility: number) => {
+    const QUERY = '/api/add_result';
+    const data = JSON.stringify({
+        'player1': player1,
+        'player2': player2,
+        'utility': utility
+    })
+    fetch(API + QUERY, {
+        method: 'POST',
+        body: data,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then(response => response.json())
 }
