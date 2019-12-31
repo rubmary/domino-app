@@ -1,9 +1,9 @@
 from flask import Flask, jsonify, request, render_template, send_file
-from game import Game, InformationSet
-from statistics import Statistics
+from .game import Game, InformationSet
+from .statistics import Statistics
 from flask_cors import CORS
 
-app = Flask(__name__, static_folder="../../domino-app/build/static", template_folder="../../domino-app/build")
+app = Flask(__name__, static_folder="../build/static", template_folder="../build")
 cors = CORS(app)
 game = Game()
 statistics = Statistics("statistics/Domino_3_3.json")
@@ -14,8 +14,7 @@ def hello():
 
 @app.route("/<path:path>")
 def serve_files(path):
-    print(path)
-    return send_file('../../domino-app/build/'+ path)
+    return send_file(app.template_folder + '/' + path)
 
 @app.route('/api/get_action', methods=['POST'])
 def get_action():
@@ -45,6 +44,3 @@ def add_result():
     return jsonify({
         "result": result
     })
-
-if __name__ == "__main__":
-    app.run();
