@@ -1,13 +1,23 @@
-from flask import Blueprint, jsonify, request
-from .game import Game, InformationSet
-from .statistics import Statistics
-from flask_cors import cross_origin
+from flask import Flask, jsonify, request, render_template, send_file
+from game import Game, InformationSet
+from statistics import Statistics
+from flask_cors import CORS
 
-main = Blueprint('main', __name__)
+app = Flask(__name__, static_folder="../../domino-app/build/static", template_folder="../../domino-app/build")
+cors = CORS(app)
 game = Game()
 statistics = Statistics("statistics/Domino_3_3.json")
 
-@main.route('/api/get_action', methods=['POST'])
+@app.route("/")
+def hello():
+    return render_template('index.html')
+
+@app.route("/<path:path>")
+def serve_files(path):
+    print(path)
+    return send_file('../../domino-app/build/'+ path)
+
+@app.route('/api/get_action', methods=['POST'])
 def get_action():
     state = request.get_json()
     print("Printing state:")
@@ -22,11 +32,11 @@ def get_action():
         "side": side
     })
 
-@main.route('/api/get_statistics', methods=['GET'])
+@app.route('/api/get_statistics', methods=['GET'])
 def get_statistics():
     return jsonify(statistics.get_statistics())
 
-@main.route('/api/add_result', methods=['POST'])
+@app.route('/api/add_result', methods=['POST'])
 def add_result():
     state = request.get_json()
     p1, p2, u = state['player1'], state['player2'], state['utility'],
@@ -35,3 +45,6 @@ def add_result():
     return jsonify({
         "result": result
     })
+
+if __name__ == "__main__":
+    app.run();

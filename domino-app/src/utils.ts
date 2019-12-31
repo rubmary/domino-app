@@ -189,9 +189,6 @@ export const logGameState = (game: GameState) => {
     console.log("-------------------------------------------------------------------")
 }
 
-/******************************* FETCH **********************************/
-const API : string = 'http://localhost:5000';
-
 
 /********************************* STRATEGY *********************************/
 export const fetchStrategy = (game: GameState, doAction : (piece: Array<number>, side: string) => void) => {
@@ -218,7 +215,7 @@ export const fetchStrategy = (game: GameState, doAction : (piece: Array<number>,
       "takenPiece": taken_piece
     });
     const QUERY : string = '/api/get_action';
-    fetch(API + QUERY, {
+    fetch(QUERY, {
         method: 'POST',
         body: data,
         headers: {
@@ -239,7 +236,7 @@ export type Statistic =  {
 
 export const fetchGetStatistics = (callback : (p1: Statistic, p2: Statistic) => void) => {
     const QUERY = '/api/get_statistics';
-    fetch(API + QUERY)
+    fetch(QUERY)
         .then(response => response.json())
         .then((data) => callback(data['player1'], data['player2']));
 }
@@ -251,7 +248,7 @@ export const fetchAddResult = (player1 : boolean, player2 : boolean, utility: nu
         'player2': player2,
         'utility': utility
     })
-    fetch(API + QUERY, {
+    fetch(QUERY, {
         method: 'POST',
         body: data,
         headers: {
