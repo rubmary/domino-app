@@ -309,7 +309,7 @@ export const canvasHeight = function() {
 };
 
 export const pieceW = function() {
-  return canvasWidth() / 12;
+  return canvasWidth() / 10;
 };
 
 export const pieceH = function() {
