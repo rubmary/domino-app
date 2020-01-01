@@ -2,6 +2,8 @@
 
 Aplicación de dominó para observar estrategia obtenida mediante el algoritmo CFR.
 
+Disponible en: https://rubmary-domino-app.appspot.com/
+
 Instrucciones
 
 ```
