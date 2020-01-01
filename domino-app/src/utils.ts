@@ -158,6 +158,8 @@ const stringPiece = (piece: DominoPiece) => {
 }
 
 export const logGameState = (game: GameState) => {
+    console.log("You should not be here!");
+    return;
     console.log("Player: " + game.player);
     console.log("Orientation: " + game.orientation);
     console.log("History: ")
