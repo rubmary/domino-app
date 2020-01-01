@@ -17,7 +17,9 @@ import {
   putAction,
   logGameState,
   fetchStrategy,
-  fetchAddResult
+  fetchAddResult,
+  canvasWidth,
+  canvasHeight
 } from '../utils';
 
 export type PieceValue = Array<{ id: number; points: Array<number> }>;
@@ -54,8 +56,6 @@ type Props = {
   player1: string;
   player2: string;
 };
-
-declare var document: any;
 
 class Board extends React.Component<Props, State> {
   positions: Array<{ x: number; y: number }> = [];
@@ -115,18 +115,8 @@ class Board extends React.Component<Props, State> {
     logGameState(this.gameState);
   }
 
-  cx = this.width() / 2;
-  cy = this.height() / 2;
-
-  width() {
-    return Math.min(document.getElementById('root').clientWidth, 720);
-    // return this.wrapper && this.wrapper.current ? this.wrapper.current.clientWidth : 0
-  }
-
-  height() {
-    return this.width() * 0.65;
-    // return  this.wrapper && this.wrapper.current ? this.wrapper.current.clientHeight : 0
-  }
+  cx = canvasWidth() / 2;
+  cy = canvasHeight() / 2;
 
   addResult() {
     const { player1, player2 } = this.props;
@@ -279,7 +269,7 @@ class Board extends React.Component<Props, State> {
       const { id } = pieces[i];
       let double = checkDouble(this.set[id]);
       let far = double ? px + dir * 125 : px + dir * 50;
-      if (far <= 175 || far >= this.width() - 100) {
+      if (far <= 175 || far >= canvasWidth() - 100) {
         // Vertical
         px -= dir * (double ? 50 : 75);
         py += 75;
@@ -353,7 +343,7 @@ class Board extends React.Component<Props, State> {
       const { id } = pieces[i];
       let double = checkDouble(this.set[id]);
       let far = double ? px + dir * 125 : px + dir * 50;
-      if (far <= 175 || far >= this.width() - 100) {
+      if (far <= 175 || far >= canvasWidth() - 100) {
         // Vertical
         px -= dir * (double ? 50 : 75);
         py -= 75;
@@ -695,7 +685,7 @@ class Board extends React.Component<Props, State> {
         />
         <div
           className='d-flex justify-content-between mb-2 mx-auto w-100'
-          style={{ maxWidth: this.width() }}
+          style={{ maxWidth: canvasWidth() }}
         >
           <h1 className='h3 font-weight-bold mb-0'>{message}</h1>
           <h2 className='h4 mb-0'>{messagePoints}</h2>
@@ -704,8 +694,8 @@ class Board extends React.Component<Props, State> {
         <div className='d-flex justify-content-center my-2 mx-auto w-100'>
           <Stage
             className='border bg-white'
-            width={this.width()}
-            height={this.height()}
+            width={canvasWidth()}
+            height={canvasHeight()}
           >
             <Layer>
               {draw}
@@ -747,7 +737,7 @@ class Board extends React.Component<Props, State> {
 
         <div
           className='d-flex justify-content-between my-2 mx-auto w-100'
-          style={{ maxWidth: this.width() }}
+          style={{ maxWidth: canvasWidth() }}
         >
           <OptionsDropdown />
           {this.buttons()}
