@@ -6,7 +6,7 @@ from flask_cors import CORS
 app = Flask(__name__, static_folder="../build/static", template_folder="../build")
 cors = CORS(app)
 game = Game()
-statistics = Statistics("statistics/Domino_3_3.json")
+statistics = Statistics()
 
 @app.route("/")
 def hello():
