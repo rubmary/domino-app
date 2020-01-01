@@ -21,18 +21,10 @@
   color: #09d3ac;
 }
 
-.gameStatus {
-  float: right;
-  margin-right: 40px;
-  margin-top: 20px;
-}
-
-.optionsDropdown {
-  float: left;
-  margin-left: 30px;
+.bg-smoke {
+  background-color: #f9f9f9;
 }
 
 .buttons {
   float: right;
-  margin-right: 40px;
 }

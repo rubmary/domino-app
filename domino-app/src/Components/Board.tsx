@@ -107,8 +107,17 @@ class Board extends React.Component<Props, State>{
         logGameState(this.gameState);
     }
 
-    cx = window.innerWidth / 2;
-    cy = window.innerHeight / 2;
+    width() {
+      return this.height()*1.5;
+    }
+
+    height () {
+      return window.innerHeight-150;
+    }
+
+    cx = this.width() / 2;
+    cy = this.height() / 2;
+
 
     addResult() {
         const {player1, player2} = this.props;
@@ -236,7 +245,7 @@ class Board extends React.Component<Props, State>{
             const { id } = pieces[i];
             let double = checkDouble(this.set[id]);
             let far = (double ? (px + dir * 125) : (px + dir * 50));
-            if (far <= 175 || far >= window.innerWidth - 100) {
+            if (far <= 175 || far >= this.width() - 100) {
                 // Vertical 
                 px -= dir * (double ? 50 : 75);
                 py += 75;
@@ -306,7 +315,7 @@ class Board extends React.Component<Props, State>{
             const { id } = pieces[i];
             let double = checkDouble(this.set[id]);
             let far = (double ? (px + dir * 125) : (px + dir * 50));
-            if (far <= 175 || far >= window.innerWidth - 100) {
+            if (far <= 175 || far >= this.width() - 100) {
                 // Vertical 
                 px -= dir * (double ? 50 : 75);
                 py -= 75;
@@ -617,12 +626,20 @@ class Board extends React.Component<Props, State>{
                     show={this.state.showAlert}
                     hideAlert={() => this.hideAlert()}
                 />
-                <h1 className='gameStatus'>
-                    {message}
-                    <br>{}</br>
-                    {messagePoints}
-                </h1>
-                <Stage width={window.innerWidth} height={window.innerHeight - 70}>
+                <div
+                  className='d-flex justify-content-between mb-2 mx-auto w-100'
+                  style={{ maxWidth: this.width() }}
+                >
+                  <h1 className='h3 font-weight-bold mb-0'>{message}</h1>
+                  <h2 className='h4 mb-0'>{messagePoints}</h2>
+                </div>
+
+                <div className='d-flex justify-content-center my-2 mx-auto w-100'>
+                <Stage
+                  className='border bg-white'
+                  width={this.width()}
+                  height={this.height()}
+                >
                     <Layer>
                         {draw}
                         <Hand
@@ -636,6 +653,8 @@ class Board extends React.Component<Props, State>{
                             pieces={this.state.playerOne}
                             drag={this.dragStart}
                             drop={this.dragEnd}
+                            height={this.height()}
+                            width={this.width()}
                         />
                         <Hand
                             show={player1==='pc' || winner !== 0}
@@ -648,6 +667,8 @@ class Board extends React.Component<Props, State>{
                             pieces={this.state.playerTwo}
                             drag={this.dragStart}
                             drop={this.dragEnd}
+                            height={this.height()}
+                            width={this.width()}
                         />
                         <Hand
                             show={(player1==='pc' && player2==='pc') || winner !== 0}
@@ -656,11 +677,19 @@ class Board extends React.Component<Props, State>{
                             pieces={this.state.deck}
                             drag={() => { }}
                             drop={() => { }}
+                            height={this.height()}
+                            width={this.width()}
                         />
                     </Layer>
                 </Stage>
+                </div>
+                <div
+                  className='d-flex justify-content-between my-2 mx-auto w-100'
+                  style={{ maxWidth: this.width() }}
+                >
                 <OptionsDropdown/>
                 {this.buttons()}
+                </div>
             </>
         )
     }

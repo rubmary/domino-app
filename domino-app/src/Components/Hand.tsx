@@ -9,6 +9,8 @@ type Props = {
     drag: (id: number) => void,
     drop: ((e: KonvaEventObject<DragEvent>, x:number, y:number) => void) | (() => void),
     move: boolean,
+    width: number,
+    height: number,
 }
 
 class Hand extends React.Component<Props>{
@@ -21,21 +23,20 @@ class Hand extends React.Component<Props>{
         );
     }
 
-    innerHeight = window.innerHeight-75;
     render(){
         const {pieces} = this.props;
         const m = (pieces.length-1)/2;
-        const cx = window.innerWidth/2;
-        const cy = this.innerHeight/2;
+        const cx = this.props.width/2;
+        const cy = this.props.height/2;
         const player = this.props.player;
         const draw = pieces.map((piece:{id:number, points: Array<number>}, i:number) => {
             let x, y;
             if(player === 3){
-                x = 30;
+                x = 10;
                 y = cy + (i-m) * 55 - 25;
             }else{
                 x = cx + (i - m) * 55 - 25;
-                y = this.props.player === 1 ? 30 : this.innerHeight - 110;
+                y = this.props.player === 1 ? 10 : this.props.height - 110;
             }
             return (
                 <Piece
