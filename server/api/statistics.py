@@ -1,20 +1,10 @@
+from google.cloud import datastore
 from threading import Lock
 import json
 
 class Statistics:
     def __init__(self):
-        self.data = {
-            'player1': {
-                'average': 0,
-                'games': 0,
-                'sum': 0
-            },
-            'player2': {
-                'average': 0,
-                'games': 0,
-                'sum': 0
-            }
-        }
+        self.client = datastore.Client()
         self.lock = Lock()
 
     def add_result(self, player1, player2, result):
@@ -33,6 +23,9 @@ class Statistics:
         return "ok"
 
     def get_statistics(self):
-        with self.lock:
-            return self.data
-        return {"result": error}
+        query = client.query(kind='player', order=['id'])
+        results = list(query.fetch())
+        return {
+            'player1': results[0],
+            'player2': results[1]
+        }
