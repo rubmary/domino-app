@@ -23,7 +23,7 @@ class Statistics:
         return "ok"
 
     def get_statistics(self):
-        query = client.query(kind='player', order=['id'])
+        query = self.client.query(kind='player', order=['id'])
         results = list(query.fetch())
         return {
             'player1': results[0],
